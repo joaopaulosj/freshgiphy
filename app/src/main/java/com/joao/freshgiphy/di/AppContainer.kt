@@ -30,15 +30,15 @@ class AppContainer(private val context: Context) {
 
     //Repository
     private fun giphyRepository(): IGiphyRepository {
-        return GiphyRepository(giphyService(), localDb())
+        return GiphyRepository(giphyService(), localDb)
     }
 
     //Data Source
     private fun gifDataFactory(): TrendingDataFactory = TrendingDataFactory(giphyRepository())
 
     //Local
-    private fun localDb(): GifDatabase {
-        return Room.databaseBuilder(
+    private val localDb: GifDatabase by lazy {
+        Room.databaseBuilder(
             context,
             GifDatabase::class.java, "gif-database"
         ).build()

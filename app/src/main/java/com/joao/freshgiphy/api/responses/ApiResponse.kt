@@ -17,7 +17,7 @@ data class GifResponse(
 )
 
 data class GifImage(
-    val original: GifPreview
+    val downsized: GifPreview
 )
 
 data class GifPreview(

@@ -42,8 +42,12 @@ class TrendingViewModel constructor(
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
-    fun onFavClick(gif: Gif){
-        repository.toggleFavorite(gif)
+    fun onFavClick(gif: Gif) {
+        if (gif.isFavourite) {
+            repository.addFavorite(gif)
+        } else {
+            repository.removeFavorite(gif.id)
+        }
     }
 
     fun refresh() {

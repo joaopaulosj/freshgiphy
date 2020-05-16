@@ -13,39 +13,38 @@ import com.joao.freshgiphy.R
 import kotlinx.android.synthetic.main.item_trending.view.*
 
 
-class FavouritesAdapter(val listener: ClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    //TODO put glide
+class FavouritesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var gifList = listOf<Gif>()
 
+    fun setItems(items: List<Gif>) {
+        gifList = items
+        notifyDataSetChanged()
+    }
 
-    inner class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_trending, parent, false)
+        return GifViewHolder(view)
+    }
+
+    override fun getItemCount() = gifList.size
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is GifViewHolder) {
+            holder.bind(gifList[position])
+        }
+    }
+
+    private class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(item: Gif) {
             itemView.apply {
                 itemTrendingImg.setDimensions(item.height, item.width)
 
                 Glide.with(context)
                     .load(item.url)
-                    .placeholder(R.color.colorAccent)
+                    .placeholder(R.color.colorPrimary)
                     .into(itemTrendingImg)
-
-                itemTrendingFavImg.setOnClickListener {
-                    listener.onFavClicked(item)
-                }
             }
         }
-    }
-
-    class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind() {
-        }
-    }
-
-    class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind() {
-        }
-    }
-
-    interface ClickListener {
-        fun onFavClicked(gif: Gif)
     }
 }

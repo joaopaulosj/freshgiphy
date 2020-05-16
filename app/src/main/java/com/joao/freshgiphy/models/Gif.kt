@@ -1,13 +1,13 @@
 package com.joao.freshgiphy.models
 
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.joao.freshgiphy.api.responses.GifResponse
 
 @Entity
 data class Gif(
-    @PrimaryKey val id: String,
+    @PrimaryKey(autoGenerate = true) val dbId: Long? = null,
+    val id: String,
     val url: String,
     val height: Int,
     val width: Int,
@@ -17,8 +17,8 @@ data class Gif(
 fun GifResponse.toGif(): Gif {
     return Gif(
         id = id,
-        url = images.original.url,
-        height = images.original.height,
-        width = images.original.width
+        url = images.downsized.url,
+        height = images.downsized.height,
+        width = images.downsized.width
     )
 }

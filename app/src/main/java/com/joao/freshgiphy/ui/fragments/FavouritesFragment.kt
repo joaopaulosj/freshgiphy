@@ -14,12 +14,17 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
+import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
 
 class FavouritesFragment : Fragment() {
 
     private lateinit var viewModel: FavouritesViewModel
+
+    private val favouritesAdapter by lazy {
+        FavouritesAdapter()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -35,6 +40,7 @@ class FavouritesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupViews()
         setupObservers()
     }
 
@@ -43,15 +49,16 @@ class FavouritesFragment : Fragment() {
             gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         }
 
-//        recyclerView.apply {
-//            this.adapter = trendingAdapter
-//            this.layoutManager = layoutManager
-//        }
+        recyclerView.apply {
+            this.adapter = favouritesAdapter
+            this.layoutManager = layoutManager
+        }
     }
 
     private fun setupObservers() {
         viewModel.getFavourites().observe(this, Observer {
             Log.i("-----", it.size.toString())
+            favouritesAdapter.setItems(it)
         })
     }
 

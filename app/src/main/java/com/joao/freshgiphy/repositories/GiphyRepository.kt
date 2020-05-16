@@ -1,7 +1,6 @@
 package com.joao.freshgiphy.repositories
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.lifecycle.LiveData
 import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
@@ -31,19 +30,16 @@ class GiphyRepository constructor(
     }
 
     @SuppressLint("CheckResult")
-    override fun toggleFavorite(gif: Gif) {
-        val isFav = favouritesLiveData.value?.any { it.id == gif.id } == true
-
+    override fun addFavorite(gif: Gif) {
         Completable.complete()
             .subscribeOn(Schedulers.io())
-            .subscribe {
-                if (isFav) {
-                    db.userDao().delete(gif)
-                    Log.i("-----", "deleting ${gif.id}")
-                } else {
-                    Log.i("-----", "favoriting ${gif.id}")
-                    db.userDao().insert(gif)
-                }
-            }
+            .subscribe { db.userDao().insert(gif) }
+    }
+
+    @SuppressLint("CheckResult")
+    override fun removeFavorite(id: String) {
+        Completable.complete()
+            .subscribeOn(Schedulers.io())
+            .subscribe { db.userDao().delete(id) }
     }
 }
