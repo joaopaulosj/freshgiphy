@@ -3,14 +3,15 @@ package com.joao.freshgiphy.ui.datasource
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
-import com.joao.freshgiphy.extensions.singleSubscribe
+import com.joao.freshgiphy.utils.extensions.singleSubscribe
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.models.toGif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.NetworkState
 
 class TrendingDataSource(
-    private val repository: IGiphyRepository, private val query: String
+    private val repository: IGiphyRepository,
+    private val querySearch: String
 ) : PageKeyedDataSource<Long, Gif>() {
 
     private val initialLoading = MutableLiveData<NetworkState>()
@@ -20,49 +21,21 @@ class TrendingDataSource(
         initialLoading.postValue(NetworkState.LOADING)
         networkState.postValue(NetworkState.LOADING)
 
-        if (query.isBlank()) {
-            loadTrending(callback)
+        val call = if (querySearch.isBlank()) {
+            repository.getTrending(0)
         } else {
-            loadSearch(callback)
+            repository.search(querySearch, 0)
         }
-    }
 
-    private fun loadTrending(callback: LoadInitialCallback<Long, Gif>) {
-        repository.getTrending(0).singleSubscribe(
+        call.singleSubscribe(
             onSuccess = {
                 if (it.meta.status == 200) {
-                    Log.i("-----", "offset ${it.pagination.offset} - first: ${it.data.first().title}")
                     val list = it.data.map { gifResponse -> gifResponse.toGif() }
-                    callback.onResult(list, null, it.pagination.count.toLong())
-                    initialLoading.postValue(NetworkState.LOADED)
-                    networkState.postValue(NetworkState.LOADED)
-                } else {
-                    networkState.postValue(
-                        NetworkState(
-                            (NetworkState.Status.FAILED),
-                            it.meta.msg
-                        )
-                    )
-                }
-            },
-            onError = {
-                networkState.postValue(
-                    NetworkState(
-                        (NetworkState.Status.FAILED),
-                        it.message
-                    )
-                )
-            }
-        )
-    }
 
-    private fun loadSearch(callback: LoadInitialCallback<Long, Gif>) {
-        repository.search(query ?: "", 0).singleSubscribe(
-            onSuccess = {
-                if (it.meta.status == 200) {
-                    Log.i("-----", "offset ${it.pagination.offset} - first: ${it.data.first().title}")
-                    val list = it.data.map { gifResponse -> gifResponse.toGif() }
-                    callback.onResult(list, null, it.pagination.count.toLong())
+                    if (list.isNotEmpty()) {
+                        callback.onResult(list, null, it.pagination.count.toLong())
+                    }
+
                     initialLoading.postValue(NetworkState.LOADED)
                     networkState.postValue(NetworkState.LOADED)
                 } else {
@@ -92,9 +65,14 @@ class TrendingDataSource(
     override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Long, Gif>) {
         networkState.postValue(NetworkState.LOADING)
 
-        repository.getTrending(params.key.toInt()).singleSubscribe(
+        val call = if (querySearch.isBlank()) {
+            repository.getTrending(params.key.toInt())
+        } else {
+            repository.search(querySearch, params.key.toInt())
+        }
+
+        call.singleSubscribe(
             onSuccess = {
-                Log.i("-----", "offset ${it.pagination.offset} - first: ${it.data.first().title}")
                 if (it.meta.status == 200) {
                     val list = it.data.map { gifResponse -> gifResponse.toGif() }
                     var nextKey: Int? = it.pagination.offset + it.pagination.count
@@ -103,7 +81,10 @@ class TrendingDataSource(
                         nextKey = null
                     }
 
-                    callback.onResult(list, nextKey?.toLong())
+                    if (list.isNotEmpty()) {
+                        callback.onResult(list, nextKey?.toLong())
+                    }
+
 
                     initialLoading.postValue(NetworkState.LOADED)
                     networkState.postValue(NetworkState.LOADED)

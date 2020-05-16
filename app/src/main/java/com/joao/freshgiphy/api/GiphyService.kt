@@ -8,7 +8,7 @@ import retrofit2.http.Query
 
 interface GiphyService {
 
-    @GET("trending")
+    @GET("trending?rating=R")
     fun getTrending(
         @Query("offset") offset: Int,
         @Query("limit") limit: Int = Constants.GIFS_PER_PAGE
