@@ -11,6 +11,10 @@ interface GiphyService {
     fun getTrending(@Query("limit") limit: Int = 25): Single<ApiResponse>
 
     @GET("search?lang=en")
-    fun search(@Query("q") query: String, @Query("limit") limit: Int = 25): Single<ApiResponse>
+    fun search(
+        @Query("q") query: String,
+        @Query("offset") page: Int = 0,
+        @Query("limit") limit: Int = 25
+    ): Single<ApiResponse>
 
 }
