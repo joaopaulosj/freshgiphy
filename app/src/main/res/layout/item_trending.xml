@@ -17,16 +17,4 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:background="@tools:sample/backgrounds/scenic" />
 
-    <TextView
-        android:id="@+id/itemTrendingIndexTxt"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_margin="16dp"
-        android:textColor="@color/white"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="1" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

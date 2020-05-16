@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.AppInjector
+import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.addTextWatcherDebounce
@@ -52,6 +53,8 @@ class TrendingFragment : Fragment() {
         }
 
         searchEdt.addTextWatcherDebounce(Constants.EDIT_TEXT_DEBOUNCE_TIME) { viewModel.search(it) }
+
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
     }
 
     private fun setupObservers() {

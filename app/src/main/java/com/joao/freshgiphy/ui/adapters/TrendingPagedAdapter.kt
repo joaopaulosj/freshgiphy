@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.item_trending.view.*
 
 
 class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diffCallback) {
+    //TODO put glide
 
     companion object {
         private const val TYPE_LOADING = 0
@@ -89,7 +90,6 @@ class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diff
     class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(item: Gif?) {
             itemView.apply {
-                itemTrendingIndexTxt.text = (adapterPosition + 1).toString()
                 itemTrendingImg.setDimensions(item?.height ?: 0, item?.width ?: 0)
 
                 Glide.with(context)

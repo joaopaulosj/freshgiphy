@@ -23,9 +23,10 @@ class TrendingViewModel constructor(
 
     private val executor = Executors.newFixedThreadPool(5)
 
-    private val networkState = Transformations.switchMap<TrendingDataSource, NetworkState>(trendingFactory.mutableLiveData) {
-        it.networkState
-    }
+    private val networkState =
+        Transformations.switchMap<TrendingDataSource, NetworkState>(trendingFactory.mutableLiveData) {
+            it.networkState
+        }
 
     private val pagedListConfig = PagedList.Config.Builder()
         .setEnablePlaceholders(false)
@@ -41,7 +42,11 @@ class TrendingViewModel constructor(
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
-    fun search(query: String){
+    fun refresh() {
+        trendingFactory.mutableLiveData.value?.invalidate()
+    }
+
+    fun search(query: String) {
         trendingFactory.apply {
             searchQuery = query
             mutableLiveData.value?.invalidate()
