@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.joao.freshgiphy.api.responses.GifResponse
 import com.joao.freshgiphy.extensions.singleSubscribe
+import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.utils.SingleLiveEvent
 
@@ -18,13 +19,13 @@ class TrendingViewModel constructor(
 
     private var currentPage = 0
 
-    private val gifsLiveData: MutableLiveData<List<GifResponse>> by lazy {
-        MutableLiveData<List<GifResponse>>().also {
+    private val gifsLiveData: MutableLiveData<List<Gif>> by lazy {
+        MutableLiveData<List<Gif>>().also {
             loadTrendingGifs()
         }
     }
 
-    fun getGifs(): LiveData<List<GifResponse>> {
+    fun getGifs(): LiveData<List<Gif>> {
         return gifsLiveData
     }
 
@@ -32,7 +33,7 @@ class TrendingViewModel constructor(
         isLoadingEvent.postValue(true)
         repository.getTrending(currentPage).singleSubscribe(
             onSuccess = {
-                gifsLiveData.postValue(it.data)
+                gifsLiveData.postValue(it)
                 isLoadingEvent.postValue(false)
             }, onError = {
                 errorEvent.postValue(it.message)
