@@ -8,12 +8,15 @@ import retrofit2.http.Query
 interface GiphyService {
 
     @GET("trending")
-    fun getTrending(@Query("limit") limit: Int = 25): Single<ApiResponse>
+    fun getTrending(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int = 25
+    ): Single<ApiResponse>
 
     @GET("search?lang=en")
     fun search(
         @Query("q") query: String,
-        @Query("offset") page: Int = 0,
+        @Query("offset") page: Int,
         @Query("limit") limit: Int = 25
     ): Single<ApiResponse>
 

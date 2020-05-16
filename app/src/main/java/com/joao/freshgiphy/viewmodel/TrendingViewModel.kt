@@ -3,7 +3,8 @@ package com.joao.freshgiphy.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.joao.freshgiphy.api.responses.GiphyResponse
+import androidx.lifecycle.ViewModelProvider
+import com.joao.freshgiphy.api.responses.GifResponse
 import com.joao.freshgiphy.extensions.singleSubscribe
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.utils.SingleLiveEvent
@@ -12,26 +13,40 @@ class TrendingViewModel constructor(
     private val repository: IGiphyRepository
 ) : ViewModel() {
 
-    val errorLiveData = SingleLiveEvent<String>()
+    val isLoadingEvent = SingleLiveEvent<Boolean>()
+    val errorEvent = SingleLiveEvent<String>()
 
-    private val gifsLiveData: MutableLiveData<List<GiphyResponse>> by lazy {
-        MutableLiveData<List<GiphyResponse>>().also {
+    private var currentPage = 0
+
+    private val gifsLiveData: MutableLiveData<List<GifResponse>> by lazy {
+        MutableLiveData<List<GifResponse>>().also {
             loadTrendingGifs()
         }
     }
 
-    fun getGifs(): LiveData<List<GiphyResponse>> {
+    fun getGifs(): LiveData<List<GifResponse>> {
         return gifsLiveData
     }
 
     private fun loadTrendingGifs() {
-        repository.getTrending().singleSubscribe(
+        isLoadingEvent.postValue(true)
+        repository.getTrending(currentPage).singleSubscribe(
             onSuccess = {
                 gifsLiveData.postValue(it.data)
+                isLoadingEvent.postValue(false)
             }, onError = {
-                errorLiveData.postValue(it.message)
+                errorEvent.postValue(it.message)
+                isLoadingEvent.postValue(false)
             }
         )
     }
 
+}
+
+class TrendingViewModelFactory(
+    private val repository: IGiphyRepository
+) : ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return TrendingViewModel(repository) as T
+    }
 }
