@@ -1,12 +1,14 @@
 package com.joao.freshgiphy.di
 
+import android.content.Context
+import androidx.room.Room
 import com.joao.freshgiphy.BuildConfig
 import com.joao.freshgiphy.api.ApiInterceptor
+import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.repositories.GiphyRepository
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
-import com.joao.freshgiphy.ui.datasource.TrendingDataSource
 import com.joao.freshgiphy.viewmodel.FavouritesViewModelFactory
 import com.joao.freshgiphy.viewmodel.TrendingViewModelFactory
 import okhttp3.OkHttpClient
@@ -15,21 +17,35 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-object AppInjector {
+class AppContainer(private val context: Context) {
 
     //ViewModels
-    fun getTrendingViewModelFactory() = TrendingViewModelFactory(getGiphyRepository(), getGifDataFactory())
+    val trendingViewModelFactory by lazy {
+        TrendingViewModelFactory(giphyRepository(), gifDataFactory())
+    }
 
-    fun getFavouritesViewModelFactory() = FavouritesViewModelFactory(getGiphyRepository())
+    val favouritesViewModelFactory by lazy {
+        FavouritesViewModelFactory(giphyRepository())
+    }
 
     //Repository
-    private fun getGiphyRepository(): IGiphyRepository = GiphyRepository(getGiphyService())
+    private fun giphyRepository(): IGiphyRepository {
+        return GiphyRepository(giphyService(), localDb())
+    }
 
     //Data Source
-    private fun getGifDataFactory(): TrendingDataFactory = TrendingDataFactory(getGiphyRepository())
+    private fun gifDataFactory(): TrendingDataFactory = TrendingDataFactory(giphyRepository())
+
+    //Local
+    private fun localDb(): GifDatabase {
+        return Room.databaseBuilder(
+            context,
+            GifDatabase::class.java, "gif-database"
+        ).build()
+    }
 
     //Service
-    private fun getGiphyService(): GiphyService {
+    private fun giphyService(): GiphyService {
         val logIntercpetor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -46,6 +62,6 @@ object AppInjector {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
             .create(GiphyService::class.java)
-    }
+    } //TODO check recreating
 
 }

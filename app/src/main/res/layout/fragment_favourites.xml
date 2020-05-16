@@ -5,9 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.TrendingFragment">
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Favourites" />
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        tools:listitem="@layout/item_trending" />
 
 </FrameLayout>

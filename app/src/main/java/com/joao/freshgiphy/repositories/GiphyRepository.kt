@@ -1,13 +1,22 @@
 package com.joao.freshgiphy.repositories
 
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.lifecycle.LiveData
+import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.api.responses.ApiResponse
-import com.joao.freshgiphy.api.responses.GifResponse
 import com.joao.freshgiphy.models.Gif
-import com.joao.freshgiphy.models.toGif
+import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 
-class GiphyRepository constructor(private val service: GiphyService) : IGiphyRepository {
+class GiphyRepository constructor(
+    private val service: GiphyService,
+    private val db: GifDatabase
+) : IGiphyRepository {
+
+    private val favouritesLiveData = db.userDao().getAll()
 
     override fun getTrending(offset: Int): Single<ApiResponse> {
         return service.getTrending(offset)
@@ -17,11 +26,24 @@ class GiphyRepository constructor(private val service: GiphyService) : IGiphyRep
         return service.search(query, offset)
     }
 
-    override fun getFavourites(): Single<List<Gif>> {
-        return Single.just(emptyList()) //TODO
+    override fun getFavourites(): LiveData<List<Gif>> {
+        return favouritesLiveData
     }
 
-    override fun toggleFavorite(gif: GifResponse): Boolean {
-        return false
+    @SuppressLint("CheckResult")
+    override fun toggleFavorite(gif: Gif) {
+        val isFav = favouritesLiveData.value?.any { it.id == gif.id } == true
+
+        Completable.complete()
+            .subscribeOn(Schedulers.io())
+            .subscribe {
+                if (isFav) {
+                    db.userDao().delete(gif)
+                    Log.i("-----", "deleting ${gif.id}")
+                } else {
+                    Log.i("-----", "favoriting ${gif.id}")
+                    db.userDao().insert(gif)
+                }
+            }
     }
 }

@@ -1,9 +1,13 @@
 package com.joao.freshgiphy.models
 
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.joao.freshgiphy.api.responses.GifResponse
 
+@Entity
 data class Gif(
-    val id: String,
+    @PrimaryKey val id: String,
     val url: String,
     val height: Int,
     val width: Int,

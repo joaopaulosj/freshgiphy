@@ -13,7 +13,9 @@ import com.joao.freshgiphy.R
 import kotlinx.android.synthetic.main.item_trending.view.*
 
 
-class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diffCallback) {
+class TrendingPagedAdapter(
+    val listener: ClickListener
+) : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diffCallback) {
     //TODO put glide
 
     companion object {
@@ -34,8 +36,15 @@ class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diff
     private var networkState = NetworkState.LOADING
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val gif = getItem(position)
+
+        if (gif == null) {
+            (holder as EmptyViewHolder).bind()
+            return
+        }
+
         when (holder) {
-            is GifViewHolder -> holder.bind(getItem(position))
+            is GifViewHolder -> holder.bind(gif)
             is LoadingViewHolder -> holder.bind()
             else -> (holder as EmptyViewHolder).bind()
         }
@@ -87,15 +96,19 @@ class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diff
         }
     }
 
-    class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(item: Gif?) {
+    inner class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        fun bind(item: Gif) {
             itemView.apply {
-                itemTrendingImg.setDimensions(item?.height ?: 0, item?.width ?: 0)
+                itemTrendingImg.setDimensions(item.height, item.width)
 
                 Glide.with(context)
-                    .load(item?.url)
+                    .load(item.url)
                     .placeholder(R.color.colorAccent)
                     .into(itemTrendingImg)
+
+                itemTrendingFavImg.setOnClickListener {
+                    listener.onFavClicked(item)
+                }
             }
         }
     }
@@ -108,5 +121,9 @@ class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diff
     class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind() {
         }
+    }
+
+    interface ClickListener {
+        fun onFavClicked(gif: Gif)
     }
 }
