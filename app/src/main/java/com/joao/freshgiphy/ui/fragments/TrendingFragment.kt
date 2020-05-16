@@ -11,14 +11,14 @@ import com.joao.freshgiphy.R
 /**
  * A simple [Fragment] subclass.
  */
-class FeaturedFragment : Fragment() {
+class TrendingFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_featured, container, false)
+        return inflater.inflate(R.layout.fragment_trending, container, false)
     }
 
 }

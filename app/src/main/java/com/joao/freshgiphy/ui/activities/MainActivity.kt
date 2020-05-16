@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.ui.fragments.FavouritesFragment
-import com.joao.freshgiphy.ui.fragments.FeaturedFragment
+import com.joao.freshgiphy.ui.fragments.TrendingFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTabs() {
-        val fragments = listOf(FeaturedFragment(), FavouritesFragment())
+        val fragments = listOf(TrendingFragment(), FavouritesFragment())
 
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int): Fragment {
