@@ -58,7 +58,7 @@ class GifDataSource(private val repository: IGiphyRepository) : PageKeyedDataSou
                     val list = it.data.map { gifResponse -> gifResponse.toGif() }
                     var nextKey: Int? = it.pagination.offset + it.pagination.count
 
-                    if(nextKey ?: 0 > it.pagination.total_count){
+                    if (nextKey ?: 0 > it.pagination.total_count) {
                         nextKey = null
                     }
 

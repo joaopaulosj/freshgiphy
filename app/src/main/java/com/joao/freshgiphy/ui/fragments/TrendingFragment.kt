@@ -6,10 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.AppInjector
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
@@ -41,13 +43,13 @@ class TrendingFragment : Fragment() {
     }
 
     private fun setupViews() {
-//        val layoutManager = StaggeredGridLayoutManager(2, LinearLayout.VERTICAL).apply {
-//            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-//        } TODO
+        val layoutManager = StaggeredGridLayoutManager(2, LinearLayout.VERTICAL).apply {
+            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+        }
 
         recyclerView.apply {
             this.adapter = trendingAdapter
-            this.layoutManager = LinearLayoutManager(activity)
+            this.layoutManager = layoutManager //TODO
             setHasFixedSize(true)
         }
     }

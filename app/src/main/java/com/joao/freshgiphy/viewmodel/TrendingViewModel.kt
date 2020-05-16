@@ -1,5 +1,6 @@
 package com.joao.freshgiphy.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,6 +11,7 @@ import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.ui.datasource.GifDataFactory
 import com.joao.freshgiphy.ui.datasource.GifDataSource
+import com.joao.freshgiphy.utils.Constants
 import java.util.concurrent.Executors
 
 
@@ -26,16 +28,17 @@ class TrendingViewModel constructor(
 
     private val pagedListConfig = PagedList.Config.Builder()
         .setEnablePlaceholders(false)
-        .setInitialLoadSizeHint(10)
-        .setPageSize(25).build()
+        .setInitialLoadSizeHint(Constants.GIFS_PER_PAGE)
+        .setPageSize(Constants.GIFS_PER_PAGE)
+        .build()
 
     private val gifsLiveData = LivePagedListBuilder<Long, Gif>(dataFactory, pagedListConfig)
         .setFetchExecutor(executor)
         .build()
 
-    fun getNetworkState() = networkState
+    fun getNetworkState(): LiveData<NetworkState> = networkState
 
-    fun getGifs() = gifsLiveData
+    fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
 }
 

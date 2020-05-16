@@ -34,7 +34,7 @@ class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diff
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is GifViewHolder -> holder.bind(getItem(position), position) //remove TODO
+            is GifViewHolder -> holder.bind(getItem(position))
             is LoadingViewHolder -> holder.bind()
             else -> (holder as EmptyViewHolder).bind()
         }
@@ -88,9 +88,9 @@ class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diff
     }
 
     class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(item: Gif?, position: Int) {
+        fun bind(item: Gif?) {
             itemView.apply {
-                itemTrendingIndexTxt.text = (position + 1).toString()
+                itemTrendingIndexTxt.text = (adapterPosition + 1).toString()
                 itemTrendingImg.setDimensions(item?.height ?: 0, item?.width ?: 0)
 
                 Glide.with(context)
