@@ -64,7 +64,6 @@ class TrendingPagedAdapter : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diff
         }
     }
 
-
     private fun hasExtraRow(): Boolean {
         return networkState !== NetworkState.LOADED
     }

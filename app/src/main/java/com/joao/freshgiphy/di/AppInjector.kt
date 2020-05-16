@@ -5,8 +5,8 @@ import com.joao.freshgiphy.api.ApiInterceptor
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.repositories.GiphyRepository
 import com.joao.freshgiphy.repositories.IGiphyRepository
-import com.joao.freshgiphy.ui.datasource.GifDataFactory
-import com.joao.freshgiphy.ui.datasource.GifDataSource
+import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
+import com.joao.freshgiphy.ui.datasource.TrendingDataSource
 import com.joao.freshgiphy.viewmodel.FavouritesViewModelFactory
 import com.joao.freshgiphy.viewmodel.TrendingViewModelFactory
 import okhttp3.OkHttpClient
@@ -26,8 +26,7 @@ object AppInjector {
     private fun getGiphyRepository(): IGiphyRepository = GiphyRepository(getGiphyService())
 
     //Data Source
-    private fun getGifDataFactory(): GifDataFactory = GifDataFactory(getGifDatasource())
-    private fun getGifDatasource(): GifDataSource = GifDataSource(getGiphyRepository())
+    private fun getGifDataFactory(): TrendingDataFactory = TrendingDataFactory(getGiphyRepository())
 
     //Service
     private fun getGiphyService(): GiphyService {

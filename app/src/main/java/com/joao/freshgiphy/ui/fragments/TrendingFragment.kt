@@ -1,6 +1,8 @@
 package com.joao.freshgiphy.ui.fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,7 +12,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.AppInjector
@@ -43,29 +45,34 @@ class TrendingFragment : Fragment() {
     }
 
     private fun setupViews() {
-        val layoutManager = StaggeredGridLayoutManager(2, LinearLayout.VERTICAL).apply {
+        val layoutManager = StaggeredGridLayoutManager(1, LinearLayout.VERTICAL).apply {
             gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         }
 
         recyclerView.apply {
             this.adapter = trendingAdapter
             this.layoutManager = layoutManager //TODO
-            setHasFixedSize(true)
         }
+
+        searchEdt.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                // Do nothing
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Do nothing
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val str = s.toString()
+                viewModel.search(str)
+            }
+        })
     }
 
     private fun setupObservers() {
         viewModel.getGifs().observe(this, Observer { trendingAdapter.submitList(it) })
         viewModel.getNetworkState().observe(this, Observer { trendingAdapter.setNetworkState(it) })
-    }
-
-    private fun showLoading(isLoading: Boolean) {
-        Log.v("-----", isLoading.toString())
-        //TODO
-    }
-
-    private fun showError(error: String) {
-        Toast.makeText(activity, error, Toast.LENGTH_LONG).show()
     }
 
 }

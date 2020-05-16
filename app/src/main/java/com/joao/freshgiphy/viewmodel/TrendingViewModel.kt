@@ -1,5 +1,6 @@
 package com.joao.freshgiphy.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -9,20 +10,20 @@ import androidx.paging.PagedList
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.NetworkState
-import com.joao.freshgiphy.ui.datasource.GifDataFactory
-import com.joao.freshgiphy.ui.datasource.GifDataSource
+import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
+import com.joao.freshgiphy.ui.datasource.TrendingDataSource
 import com.joao.freshgiphy.utils.Constants
 import java.util.concurrent.Executors
 
 
 class TrendingViewModel constructor(
     private val repository: IGiphyRepository,
-    dataFactory: GifDataFactory
+    private val trendingFactory: TrendingDataFactory
 ) : ViewModel() {
 
     private val executor = Executors.newFixedThreadPool(5)
 
-    private val networkState = Transformations.switchMap<GifDataSource, NetworkState>(dataFactory.mutableLiveData) {
+    private val networkState = Transformations.switchMap<TrendingDataSource, NetworkState>(trendingFactory.mutableLiveData) {
         it.networkState
     }
 
@@ -32,7 +33,7 @@ class TrendingViewModel constructor(
         .setPageSize(Constants.GIFS_PER_PAGE)
         .build()
 
-    private val gifsLiveData = LivePagedListBuilder<Long, Gif>(dataFactory, pagedListConfig)
+    private var gifsLiveData = LivePagedListBuilder<Long, Gif>(trendingFactory, pagedListConfig)
         .setFetchExecutor(executor)
         .build()
 
@@ -40,13 +41,20 @@ class TrendingViewModel constructor(
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
+    fun search(query: String){
+        trendingFactory.apply {
+            searchQuery = query
+            mutableLiveData.value?.invalidate()
+        }
+    }
+
 }
 
 class TrendingViewModelFactory(
     private val repository: IGiphyRepository,
-    private val dataFactory: GifDataFactory
+    private val trendingDataFactory: TrendingDataFactory
 ) : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return TrendingViewModel(repository, dataFactory) as T
+        return TrendingViewModel(repository, trendingDataFactory) as T
     }
 }

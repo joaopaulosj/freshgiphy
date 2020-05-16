@@ -9,14 +9,55 @@ import com.joao.freshgiphy.models.toGif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.NetworkState
 
-class GifDataSource(private val repository: IGiphyRepository) : PageKeyedDataSource<Long, Gif>() {
+class TrendingDataSource(
+    private val repository: IGiphyRepository, private val query: String
+) : PageKeyedDataSource<Long, Gif>() {
+
     private val initialLoading = MutableLiveData<NetworkState>()
     val networkState = MutableLiveData<NetworkState>()
 
     override fun loadInitial(params: LoadInitialParams<Long>, callback: LoadInitialCallback<Long, Gif>) {
         initialLoading.postValue(NetworkState.LOADING)
         networkState.postValue(NetworkState.LOADING)
+
+        if (query.isBlank()) {
+            loadTrending(callback)
+        } else {
+            loadSearch(callback)
+        }
+    }
+
+    private fun loadTrending(callback: LoadInitialCallback<Long, Gif>) {
         repository.getTrending(0).singleSubscribe(
+            onSuccess = {
+                if (it.meta.status == 200) {
+                    Log.i("-----", "offset ${it.pagination.offset} - first: ${it.data.first().title}")
+                    val list = it.data.map { gifResponse -> gifResponse.toGif() }
+                    callback.onResult(list, null, it.pagination.count.toLong())
+                    initialLoading.postValue(NetworkState.LOADED)
+                    networkState.postValue(NetworkState.LOADED)
+                } else {
+                    networkState.postValue(
+                        NetworkState(
+                            (NetworkState.Status.FAILED),
+                            it.meta.msg
+                        )
+                    )
+                }
+            },
+            onError = {
+                networkState.postValue(
+                    NetworkState(
+                        (NetworkState.Status.FAILED),
+                        it.message
+                    )
+                )
+            }
+        )
+    }
+
+    private fun loadSearch(callback: LoadInitialCallback<Long, Gif>) {
+        repository.search(query ?: "", 0).singleSubscribe(
             onSuccess = {
                 if (it.meta.status == 200) {
                     Log.i("-----", "offset ${it.pagination.offset} - first: ${it.data.first().title}")
