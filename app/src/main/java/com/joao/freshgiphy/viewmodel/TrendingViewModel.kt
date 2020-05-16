@@ -1,53 +1,49 @@
 package com.joao.freshgiphy.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.joao.freshgiphy.api.responses.GifResponse
-import com.joao.freshgiphy.extensions.singleSubscribe
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.repositories.IGiphyRepository
-import com.joao.freshgiphy.utils.SingleLiveEvent
+import com.joao.freshgiphy.ui.NetworkState
+import com.joao.freshgiphy.ui.datasource.GifDataFactory
+import com.joao.freshgiphy.ui.datasource.GifDataSource
+import java.util.concurrent.Executors
+
 
 class TrendingViewModel constructor(
-    private val repository: IGiphyRepository
+    private val repository: IGiphyRepository,
+    dataFactory: GifDataFactory
 ) : ViewModel() {
 
-    val isLoadingEvent = SingleLiveEvent<Boolean>()
-    val errorEvent = SingleLiveEvent<String>()
+    private val executor = Executors.newFixedThreadPool(5)
 
-    private var currentPage = 0
-
-    private val gifsLiveData: MutableLiveData<List<Gif>> by lazy {
-        MutableLiveData<List<Gif>>().also {
-            loadTrendingGifs()
-        }
+    private val networkState = Transformations.switchMap<GifDataSource, NetworkState>(dataFactory.mutableLiveData) {
+        it.networkState
     }
 
-    fun getGifs(): LiveData<List<Gif>> {
-        return gifsLiveData
-    }
+    private val pagedListConfig = PagedList.Config.Builder()
+        .setEnablePlaceholders(false)
+        .setInitialLoadSizeHint(10)
+        .setPageSize(25).build()
 
-    private fun loadTrendingGifs() {
-        isLoadingEvent.postValue(true)
-        repository.getTrending(currentPage).singleSubscribe(
-            onSuccess = {
-                gifsLiveData.postValue(it)
-                isLoadingEvent.postValue(false)
-            }, onError = {
-                errorEvent.postValue(it.message)
-                isLoadingEvent.postValue(false)
-            }
-        )
-    }
+    private val gifsLiveData = LivePagedListBuilder<Long, Gif>(dataFactory, pagedListConfig)
+        .setFetchExecutor(executor)
+        .build()
+
+    fun getNetworkState() = networkState
+
+    fun getGifs() = gifsLiveData
 
 }
 
 class TrendingViewModelFactory(
-    private val repository: IGiphyRepository
+    private val repository: IGiphyRepository,
+    private val dataFactory: GifDataFactory
 ) : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return TrendingViewModel(repository) as T
+        return TrendingViewModel(repository, dataFactory) as T
     }
 }

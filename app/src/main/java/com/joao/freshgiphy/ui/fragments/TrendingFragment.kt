@@ -6,18 +6,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
-
 import com.joao.freshgiphy.R
-import com.joao.freshgiphy.api.responses.GifResponse
 import com.joao.freshgiphy.di.AppInjector
-import com.joao.freshgiphy.models.Gif
-import com.joao.freshgiphy.ui.adapters.TrendingAdapter
+import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
 
@@ -29,7 +24,7 @@ class TrendingFragment : Fragment() {
     }
 
     private val trendingAdapter by lazy {
-        TrendingAdapter()
+        TrendingPagedAdapter()
     }
 
     override fun onCreateView(
@@ -46,27 +41,20 @@ class TrendingFragment : Fragment() {
     }
 
     private fun setupViews() {
-        val layoutManager = StaggeredGridLayoutManager(1, LinearLayout.VERTICAL).apply {
-            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-        }
+//        val layoutManager = StaggeredGridLayoutManager(2, LinearLayout.VERTICAL).apply {
+//            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+//        } TODO
 
         recyclerView.apply {
             this.adapter = trendingAdapter
-            this.layoutManager = layoutManager
+            this.layoutManager = LinearLayoutManager(activity)
             setHasFixedSize(true)
         }
     }
 
     private fun setupObservers() {
-        with(viewModel) {
-            isLoadingEvent.observe(this@TrendingFragment, Observer { showLoading(it) })
-            errorEvent.observe(this@TrendingFragment, Observer { showError(it) })
-            getGifs().observe(this@TrendingFragment, Observer { showGifs(it) })
-        }
-    }
-
-    private fun showGifs(gifs: List<Gif>) {
-        trendingAdapter.addItems(gifs)
+        viewModel.getGifs().observe(this, Observer { trendingAdapter.submitList(it) })
+        viewModel.getNetworkState().observe(this, Observer { trendingAdapter.setNetworkState(it) })
     }
 
     private fun showLoading(isLoading: Boolean) {
