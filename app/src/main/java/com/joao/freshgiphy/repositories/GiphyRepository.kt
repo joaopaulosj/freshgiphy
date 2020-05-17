@@ -56,26 +56,19 @@ class GiphyRepository constructor(
         return onGifChanged
     }
 
-    @SuppressLint("CheckResult") //TODO
-    override fun addFavourite(gif: Gif) {
-        gif.isFavourite = true
+    //TODO warning
+    override fun toggleFavourite(gif: Gif) {
+        gif.isFavourite = !gif.isFavourite
 
         Completable.complete()
             .subscribeOn(Schedulers.io())
             .subscribe {
-                db.userDao().insert(gif)
-                onGifChanged.postValue(gif)
-            }
-    }
+                if (gif.isFavourite) {
+                    db.userDao().insert(gif)
+                } else {
+                    db.userDao().delete(gif.id)
+                }
 
-    @SuppressLint("CheckResult") //TODO
-    override fun removeFavourite(gif: Gif) {
-        gif.isFavourite = false
-
-        Completable.complete()
-            .subscribeOn(Schedulers.io())
-            .subscribe {
-                db.userDao().delete(gif.id)
                 onGifChanged.postValue(gif)
             }
     }

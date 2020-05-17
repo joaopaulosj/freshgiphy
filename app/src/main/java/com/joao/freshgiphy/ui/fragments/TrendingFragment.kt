@@ -6,10 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
@@ -24,7 +23,7 @@ class TrendingFragment : Fragment(), GifClickListener {
 
     private lateinit var viewModel: TrendingViewModel
 
-    private val trendingAdapter by lazy { TrendingPagedAdapter(this) }
+    private val trendingPagedAdapter by lazy { TrendingPagedAdapter(this) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,13 +46,10 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     private fun setupViews() {
-        val layoutManager = StaggeredGridLayoutManager(1, LinearLayout.VERTICAL).apply {
-            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-        }
-
         recyclerView.apply {
-            this.adapter = trendingAdapter
-            this.layoutManager = layoutManager //TODO replace
+            this.adapter = trendingPagedAdapter
+            this.layoutManager = LinearLayoutManager(activity)
+            itemAnimator = null
         }
 
         searchEdt.addTextWatcherDebounce(Constants.EDIT_TEXT_DEBOUNCE_TIME) { viewModel.search(it) }
@@ -62,13 +58,13 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     override fun onFavClicked(gif: Gif) {
-        viewModel.onFavClick(gif)
+        viewModel.onFavouriteClick(gif)
     }
 
     private fun setupObservers() {
-        viewModel.getGifs().observe(this, Observer { trendingAdapter.submitList(it) })
-        viewModel.getNetworkState().observe(this, Observer { trendingAdapter.setNetworkState(it) })
-        viewModel.onGifChanged().observe(this, Observer { trendingAdapter.updateItem(it) })
+        viewModel.getGifs().observe(this, Observer { trendingPagedAdapter.submitList(it) })
+        viewModel.getNetworkState().observe(this, Observer { trendingPagedAdapter.setNetworkState(it) })
+        viewModel.onGifChanged().observe(this, Observer { trendingPagedAdapter.updateItem(it) })
     }
 
 }

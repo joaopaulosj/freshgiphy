@@ -44,13 +44,7 @@ class TrendingViewModel constructor(
 
     fun onGifChanged(): SingleLiveEvent<Gif> = repository.onGifChanged()
 
-    fun onFavClick(gif: Gif) {
-        if (!gif.isFavourite) {
-            repository.addFavourite(gif)
-        } else {
-            repository.removeFavourite(gif)
-        }
-    }
+    fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
 
     fun refresh() {
         trendingFactory.mutableLiveData.value?.invalidate()

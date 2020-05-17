@@ -47,7 +47,7 @@ class FavouritesFragment : Fragment(), GifClickListener {
     }
 
     override fun onFavClicked(gif: Gif) {
-        viewModel.onFavClick(gif)
+        viewModel.onFavouriteClick(gif)
     }
 
     private fun setupViews() {

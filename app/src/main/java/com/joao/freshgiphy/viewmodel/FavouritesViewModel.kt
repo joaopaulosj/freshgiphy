@@ -12,13 +12,7 @@ class FavouritesViewModel constructor(private val repository: IGiphyRepository) 
 
     fun getFavourites(): LiveData<List<Gif>> = favsLiveData
 
-    fun onFavClick(gif: Gif) {
-        if (!gif.isFavourite) {
-            repository.addFavourite(gif)
-        } else {
-            repository.removeFavourite(gif)
-        }
-    }
+    fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
 }
 
 class FavouritesViewModelFactory(
