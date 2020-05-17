@@ -18,6 +18,7 @@ import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.addTextWatcherDebounce
+import com.joao.freshgiphy.utils.extensions.hideKeyboard
 import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
@@ -74,6 +75,7 @@ class TrendingFragment : Fragment(), GifClickListener {
         searchEdt.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 searchEdt.clearFocus()
+                searchEdt.hideKeyboard()
             }
 
             false

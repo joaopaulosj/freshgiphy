@@ -64,7 +64,6 @@ class FavouritesFragment : Fragment(), GifClickListener {
 
     private fun setupObservers() {
         viewModel.getFavourites().observe(this, Observer {
-            Log.i("-----", it.size.toString())
             favouritesAdapter.setItems(it)
         })
     }

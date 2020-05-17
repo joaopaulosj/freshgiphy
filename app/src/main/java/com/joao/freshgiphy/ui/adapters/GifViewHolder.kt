@@ -21,7 +21,7 @@ class GifViewHolder(
         R.color.colorBlue,
         R.color.colorDeepPurple,
         R.color.colorYellow,
-        R.color.colorAmber
+        R.color.colorPink
     )
 
     fun bind(item: Gif) {
