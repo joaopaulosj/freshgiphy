@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
@@ -23,7 +24,9 @@ class TrendingFragment : Fragment(), GifClickListener {
 
     private lateinit var viewModel: TrendingViewModel
 
-    private val trendingPagedAdapter by lazy { TrendingPagedAdapter(this) }
+    private val trendingPagedAdapter by lazy {
+        TrendingPagedAdapter(this, Glide.with(this))
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,7 +60,7 @@ class TrendingFragment : Fragment(), GifClickListener {
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
     }
 
-    override fun onFavClicked(gif: Gif) {
+    override fun onFavouriteClicked(gif: Gif) {
         viewModel.onFavouriteClick(gif)
     }
 

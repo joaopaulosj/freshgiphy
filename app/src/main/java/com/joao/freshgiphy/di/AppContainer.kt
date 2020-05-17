@@ -21,7 +21,7 @@ class AppContainer(private val context: Context) {
 
     //ViewModels
     val trendingViewModelFactory by lazy {
-        TrendingViewModelFactory(giphyRepository, gifDataFactory())
+        TrendingViewModelFactory(giphyRepository, gifDataFactory)
     }
 
     val favouritesViewModelFactory by lazy {
@@ -34,7 +34,7 @@ class AppContainer(private val context: Context) {
     }
 
     //Data Source
-    private fun gifDataFactory(): TrendingDataFactory = TrendingDataFactory(giphyRepository)
+    private val gifDataFactory: TrendingDataFactory by lazy { TrendingDataFactory(giphyRepository) }
 
     //Local
     private val localDb: GifDatabase by lazy {
@@ -46,13 +46,13 @@ class AppContainer(private val context: Context) {
 
     //Service
     private val giphyService: GiphyService by lazy {
-        val logIntercpetor = HttpLoggingInterceptor().apply {
+        val logInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(ApiInterceptor())
-            .addInterceptor(logIntercpetor)
+            .addInterceptor(logInterceptor)
             .build()
 
         Retrofit.Builder()

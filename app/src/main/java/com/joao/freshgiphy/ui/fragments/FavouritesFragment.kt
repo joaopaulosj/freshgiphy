@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.bumptech.glide.Glide
 
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
@@ -25,7 +26,7 @@ class FavouritesFragment : Fragment(), GifClickListener {
     private lateinit var viewModel: FavouritesViewModel
 
     private val favouritesAdapter by lazy {
-        FavouritesAdapter(this)
+        FavouritesAdapter(this, Glide.with(this))
     }
 
     override fun onCreateView(
@@ -46,7 +47,7 @@ class FavouritesFragment : Fragment(), GifClickListener {
         setupObservers()
     }
 
-    override fun onFavClicked(gif: Gif) {
+    override fun onFavouriteClicked(gif: Gif) {
         viewModel.onFavouriteClick(gif)
     }
 

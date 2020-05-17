@@ -6,13 +6,15 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.RequestManager
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.R
 
 
 class TrendingPagedAdapter(
-    private val listener: GifClickListener
+    private val listener: GifClickListener,
+    private val glide: RequestManager
 ) : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diffCallback) {
     //TODO put glide
 
@@ -56,7 +58,7 @@ class TrendingPagedAdapter(
             }
             TYPE_GIF -> {
                 val view = layoutInflater.inflate(R.layout.item_trending, parent, false)
-                GifViewHolder(view, listener)
+                GifViewHolder(view, listener, glide)
             }
             else -> {
                 EmptyViewHolder(parent)

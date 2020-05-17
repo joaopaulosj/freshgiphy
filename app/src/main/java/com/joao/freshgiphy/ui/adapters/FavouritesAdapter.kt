@@ -7,13 +7,17 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.R
 import kotlinx.android.synthetic.main.item_trending.view.*
 
 
-class FavouritesAdapter(private val listener: GifClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FavouritesAdapter(
+    private val listener: GifClickListener,
+    private val glide: RequestManager
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var gifList = listOf<Gif>()
 
@@ -24,7 +28,7 @@ class FavouritesAdapter(private val listener: GifClickListener) : RecyclerView.A
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_trending, parent, false)
-        return GifViewHolder(view, listener)
+        return GifViewHolder(view, listener, glide)
     }
 
     override fun getItemCount() = gifList.size
