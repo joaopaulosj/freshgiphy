@@ -1,7 +1,6 @@
 package com.joao.freshgiphy.ui.adapters
 
 import android.animation.Animator
-import android.animation.ValueAnimator
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager

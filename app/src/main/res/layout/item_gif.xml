@@ -30,7 +30,7 @@
         app:lottie_autoPlay="false"
         app:lottie_fileName="anim_star.json"
         app:lottie_loop="false"
-        app:lottie_scale="5"
+        app:lottie_scale="4"
         app:lottie_speed="2" />
 
     <com.airbnb.lottie.LottieAnimationView

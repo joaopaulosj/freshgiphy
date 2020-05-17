@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
@@ -102,6 +103,7 @@ class TrendingFragment : Fragment(), GifClickListener {
         viewModel.getNetworkState().observe(this, Observer { trendingPagedAdapter.setNetworkState(it) })
         viewModel.onGifChanged().observe(this, Observer { trendingPagedAdapter.updateItem(it) })
         viewModel.getGifs().observe(this, Observer { onPageListLoaded(it) })
+        viewModel.getIsListEmpty().observe(this, Observer { onListIsEmpty(it) })
     }
 
     private fun onPageListLoaded(list: PagedList<Gif>) {
@@ -112,14 +114,16 @@ class TrendingFragment : Fragment(), GifClickListener {
             loadingAnim.visibility = View.GONE
             loadingAnim.cancelAnimation()
         }
+    }
 
-//        if (list.isEmpty()) {
-//            recyclerView.visibility = View.GONE
-//            emptyAnim.visibility = View.VISIBLE
-//        } else {
-        recyclerView.visibility = View.VISIBLE
-        emptyAnim.visibility = View.GONE
-//        }
+    private fun onListIsEmpty(isEmpty: Boolean) {
+        if (isEmpty) {
+            recyclerView.visibility = View.GONE
+            emptyAnim.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = View.VISIBLE
+            emptyAnim.visibility = View.GONE
+        }
     }
 
 }

@@ -1,7 +1,5 @@
 package com.joao.freshgiphy.repositories
 
-import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
 import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.api.responses.ApiResponse
@@ -17,13 +15,13 @@ class GiphyRepository constructor(
     private val db: GifDatabase
 ) : IGiphyRepository {
 
-    private val favouritesLiveData = db.userDao().getAll()
     private val onGifChanged = SingleLiveEvent<Gif>()
+    private val onFavouriteGifChanged = SingleLiveEvent<Gif>()
 
     override fun getTrending(offset: Int): Single<ApiResponse> {
         return Single.zip(
             service.getTrending(offset),
-            db.userDao().getAllRx(),
+            db.userDao().getAll(),
             BiFunction<ApiResponse, List<Gif>, ApiResponse> { fromApi, fromDb ->
                 return@BiFunction setFavourites(fromApi, fromDb)
             }
@@ -33,7 +31,7 @@ class GiphyRepository constructor(
     override fun search(query: String, offset: Int): Single<ApiResponse> {
         return Single.zip(
             service.search(query, offset),
-            db.userDao().getAllRx(),
+            db.userDao().getAll(),
             BiFunction<ApiResponse, List<Gif>, ApiResponse> { fromApi, fromDb ->
                 return@BiFunction setFavourites(fromApi, fromDb)
             }
@@ -48,12 +46,16 @@ class GiphyRepository constructor(
         return fromApi
     }
 
-    override fun getFavourites(): LiveData<List<Gif>> {
-        return favouritesLiveData
+    override fun getFavourites(): Single<List<Gif>> {
+        return db.userDao().getAll()
     }
 
     override fun onGifChanged(): SingleLiveEvent<Gif> {
         return onGifChanged
+    }
+
+    override fun onFavouriteGifChanged(): SingleLiveEvent<Gif> {
+        return onFavouriteGifChanged
     }
 
     //TODO warning
@@ -69,6 +71,7 @@ class GiphyRepository constructor(
                     db.userDao().delete(gif.id)
                 }
 
+                onFavouriteGifChanged.postValue(gif)
                 onGifChanged.postValue(gif)
             }
     }

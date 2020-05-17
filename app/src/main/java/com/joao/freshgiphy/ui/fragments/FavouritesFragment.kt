@@ -2,7 +2,6 @@ package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,13 +19,14 @@ import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
+import kotlinx.android.synthetic.main.fragment_favourites.recyclerView
 
-class FavouritesFragment : Fragment(), GifClickListener {
+class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.EmptyListListener {
 
     private lateinit var viewModel: FavouritesViewModel
 
     private val favouritesAdapter by lazy {
-        FavouritesAdapter(this, Glide.with(this))
+        FavouritesAdapter(this, this, Glide.with(this))
     }
 
     override fun onCreateView(
@@ -63,9 +63,17 @@ class FavouritesFragment : Fragment(), GifClickListener {
     }
 
     private fun setupObservers() {
-        viewModel.getFavourites().observe(this, Observer {
-            favouritesAdapter.setItems(it)
-        })
+        viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
+        viewModel.onFavouriteGifChanged().observe(this, Observer { favouritesAdapter.updateItem(it) })
     }
 
+    override fun isListEmpty(isEmpty: Boolean) {
+        if (isEmpty) {
+            recyclerView.visibility = View.GONE
+            emptyContainer.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = View.VISIBLE
+            emptyContainer.visibility = View.GONE
+        }
+    }
 }

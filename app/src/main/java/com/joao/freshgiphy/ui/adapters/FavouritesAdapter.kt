@@ -10,14 +10,34 @@ import com.joao.freshgiphy.R
 
 class FavouritesAdapter(
     private val listener: GifClickListener,
+    private val emptyListener: EmptyListListener,
     private val glide: RequestManager
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var gifList = listOf<Gif>()
+    private var gifList = mutableListOf<Gif>()
 
     fun setItems(items: List<Gif>) {
-        gifList = items
+        gifList.clear()
+        gifList.addAll(items)
         notifyDataSetChanged()
+
+        emptyListener.isListEmpty(gifList.isEmpty())
+    }
+
+    fun updateItem(item: Gif) {
+        if (item.isFavourite) {
+            gifList.add(0, item)
+            notifyItemInserted(0)
+        } else {
+            val position = gifList.indexOfFirst { it.id == item.id }
+
+            if (position == -1) return
+
+            gifList.removeAt(position)
+            notifyItemRemoved(position)
+        }
+
+        emptyListener.isListEmpty(gifList.isEmpty())
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -31,5 +51,9 @@ class FavouritesAdapter(
         if (holder is GifViewHolder) {
             holder.bind(gifList[position])
         }
+    }
+
+    interface EmptyListListener {
+        fun isListEmpty(isEmpty: Boolean)
     }
 }
