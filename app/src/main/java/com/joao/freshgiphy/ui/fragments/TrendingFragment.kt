@@ -2,29 +2,34 @@ package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import com.jakewharton.rxbinding.widget.RxTextView
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
-import com.joao.freshgiphy.utils.extensions.addTextWatcherDebounce
 import com.joao.freshgiphy.utils.extensions.hideKeyboard
 import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
+
 
 class TrendingFragment : Fragment(), GifClickListener {
 
@@ -65,16 +70,10 @@ class TrendingFragment : Fragment(), GifClickListener {
 
         clearSearchBtn.setOnClickListener { onClearSearchClicked() }
 
-        searchEdt.addTextWatcherDebounce(Constants.EDIT_TEXT_DEBOUNCE_TIME) {
-            viewModel.search(it)
-            loadingAnim.playAnimation()
-
-            clearSearchBtn.visibility = if (it.isBlank()) {
-                View.INVISIBLE
-            } else {
-                View.VISIBLE
-            }
-        }
+        RxTextView.textChanges(searchEdt)
+            .debounce(Constants.EDIT_TEXT_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { onSearchChange(it.toString()) }
 
         searchEdt.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -83,6 +82,18 @@ class TrendingFragment : Fragment(), GifClickListener {
             }
 
             false
+        }
+    }
+
+    private fun onSearchChange(text: String) {
+        viewModel.search(text)
+
+        loadingAnim.playAnimation()
+
+        clearSearchBtn.visibility = if (text.isBlank()) {
+            View.INVISIBLE
+        } else {
+            View.VISIBLE
         }
     }
 
