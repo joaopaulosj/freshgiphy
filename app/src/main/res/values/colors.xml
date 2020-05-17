@@ -7,8 +7,11 @@
     <color name="colorRed">#ff5252</color>
     <color name="colorGreen">#69f0ae</color>
     <color name="colorYellow">#eeff41</color>
+    <color name="colorAmber">#ffd740</color>
     <color name="colorBlue">#40c4ff</color>
-    <color name="colorPurple">#e040fb</color>
+    <color name="colorCyan">#18ffff</color>
+    <color name="colorTeal">#18ffff</color>
+    <color name="colorDeepPurple">#7c4dff</color>
     <color name="transparent">#00ffffff</color>
 
     <color name="colorWhite">#FFFFFF</color>

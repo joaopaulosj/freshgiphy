@@ -1,13 +1,12 @@
 package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
-import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
+import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,8 +18,8 @@ import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.addTextWatcherDebounce
+import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
-import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.fragment_trending.*
 
 class TrendingFragment : Fragment(), GifClickListener {
@@ -60,17 +59,34 @@ class TrendingFragment : Fragment(), GifClickListener {
             itemAnimator = null
         }
 
-        clearSearchBtn.setOnClickListener {
-            clearSearchBtn.visibility = View.INVISIBLE
-            searchEdt.setText("")
-        }
+        clearSearchBtn.setOnClickListener { onClearSearchClicked() }
+
         searchEdt.addTextWatcherDebounce(Constants.EDIT_TEXT_DEBOUNCE_TIME) {
             viewModel.search(it)
-            if (it.isBlank()) {
-                clearSearchBtn.visibility = View.INVISIBLE
+
+            clearSearchBtn.visibility = if (it.isBlank()) {
+                View.INVISIBLE
             } else {
-                clearSearchBtn.visibility = View.VISIBLE
+                View.VISIBLE
             }
+        }
+
+        searchEdt.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                searchEdt.clearFocus()
+            }
+
+            false
+        }
+    }
+
+    private fun onClearSearchClicked() {
+        clearSearchBtn.visibility = View.INVISIBLE
+
+        searchEdt.apply {
+            setText("")
+            requestFocus()
+            showKeyboard()
         }
     }
 

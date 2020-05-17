@@ -16,9 +16,12 @@ class GifViewHolder(
 
     private val colors = listOf(
         R.color.colorGreen,
+        R.color.colorCyan,
+        R.color.colorTeal,
         R.color.colorBlue,
-        R.color.colorPurple,
-        R.color.colorYellow
+        R.color.colorDeepPurple,
+        R.color.colorYellow,
+        R.color.colorAmber
     )
 
     fun bind(item: Gif) {

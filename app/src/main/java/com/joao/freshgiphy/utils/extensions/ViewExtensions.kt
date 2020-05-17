@@ -1,7 +1,10 @@
 package com.joao.freshgiphy.utils.extensions
 
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
@@ -26,5 +29,10 @@ fun EditText.addTextWatcherDebounce(timeoutInMillis: Long, action: ((String) -> 
         .distinct()
         .observableSubscribe(onNext = { action(it) })
 
+}
+
+fun View.showKeyboard() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 }
 
