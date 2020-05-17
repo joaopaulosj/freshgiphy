@@ -16,7 +16,6 @@ class TrendingPagedAdapter(
     private val listener: GifClickListener,
     private val glide: RequestManager
 ) : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diffCallback) {
-    //TODO put glide
 
     companion object {
         private const val TYPE_LOADING = 0

@@ -30,7 +30,6 @@ class TrendingViewModel constructor(
 
     private val pagedListConfig = PagedList.Config.Builder()
         .setEnablePlaceholders(false)
-        .setInitialLoadSizeHint(Constants.GIFS_PER_PAGE)
         .setPageSize(Constants.GIFS_PER_PAGE)
         .build()
 

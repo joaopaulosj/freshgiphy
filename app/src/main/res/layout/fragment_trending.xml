@@ -61,6 +61,16 @@
             app:lottie_loop="true"
             tools:visibility="gone" />
 
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/emptyAnim"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="anim_empty.json"
+            app:lottie_loop="true" />
+
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"

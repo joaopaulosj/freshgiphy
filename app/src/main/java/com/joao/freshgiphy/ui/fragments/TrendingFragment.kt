@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.joao.freshgiphy.R
@@ -64,6 +65,7 @@ class TrendingFragment : Fragment(), GifClickListener {
 
         searchEdt.addTextWatcherDebounce(Constants.EDIT_TEXT_DEBOUNCE_TIME) {
             viewModel.search(it)
+            loadingAnim.playAnimation()
 
             clearSearchBtn.visibility = if (it.isBlank()) {
                 View.INVISIBLE
@@ -99,16 +101,25 @@ class TrendingFragment : Fragment(), GifClickListener {
     private fun setupObservers() {
         viewModel.getNetworkState().observe(this, Observer { trendingPagedAdapter.setNetworkState(it) })
         viewModel.onGifChanged().observe(this, Observer { trendingPagedAdapter.updateItem(it) })
-        viewModel.getGifs().observe(this, Observer {
-            trendingPagedAdapter.submitList(it)
-            swipeRefresh.isRefreshing = false
+        viewModel.getGifs().observe(this, Observer { onPageListLoaded(it) })
+    }
 
-            if (loadingAnim.visibility == View.VISIBLE) {
-                loadingAnim.visibility = View.GONE
-                loadingAnim.cancelAnimation()
-                recyclerView.visibility = View.VISIBLE
-            }
-        })
+    private fun onPageListLoaded(list: PagedList<Gif>) {
+        trendingPagedAdapter.submitList(list)
+        swipeRefresh.isRefreshing = false
+
+        if (loadingAnim.visibility == View.VISIBLE) {
+            loadingAnim.visibility = View.GONE
+            loadingAnim.cancelAnimation()
+        }
+
+//        if (list.isEmpty()) {
+//            recyclerView.visibility = View.GONE
+//            emptyAnim.visibility = View.VISIBLE
+//        } else {
+        recyclerView.visibility = View.VISIBLE
+        emptyAnim.visibility = View.GONE
+//        }
     }
 
 }
