@@ -6,6 +6,7 @@ import com.bumptech.glide.RequestManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.models.Gif
 import kotlinx.android.synthetic.main.item_trending.view.*
+import kotlin.random.Random
 
 class GifViewHolder(
     view: View,
@@ -13,12 +14,21 @@ class GifViewHolder(
     private val glide: RequestManager
 ) : RecyclerView.ViewHolder(view) {
 
+    private val colors = listOf(
+        R.color.colorGreen,
+        R.color.colorBlue,
+        R.color.colorPurple,
+        R.color.colorYellow
+    )
+
     fun bind(item: Gif) {
         itemView.apply {
             itemTrendingImg.setDimensions(item.height, item.width)
 
+            val colorIndex = Random.nextInt(0, colors.size)
+
             glide.load(item.url)
-                .placeholder(R.color.colorAccent)
+                .placeholder(colors[colorIndex])
                 .into(itemTrendingImg)
 
             val favIcon = if (item.isFavourite) R.drawable.ic_star else R.drawable.ic_star_border

@@ -1,11 +1,13 @@
 package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
+import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -65,9 +67,18 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     private fun setupObservers() {
-        viewModel.getGifs().observe(this, Observer { trendingPagedAdapter.submitList(it) })
         viewModel.getNetworkState().observe(this, Observer { trendingPagedAdapter.setNetworkState(it) })
         viewModel.onGifChanged().observe(this, Observer { trendingPagedAdapter.updateItem(it) })
+        viewModel.getGifs().observe(this, Observer {
+            trendingPagedAdapter.submitList(it)
+            swipeRefresh.isRefreshing = false
+
+            if (loadingAnim.visibility == View.VISIBLE) {
+                loadingAnim.visibility = View.GONE
+                loadingAnim.cancelAnimation()
+                recyclerView.visibility = View.VISIBLE
+            }
+        })
     }
 
 }

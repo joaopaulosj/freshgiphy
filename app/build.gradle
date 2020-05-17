@@ -62,6 +62,9 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
+    //LOTTIE
+    implementation "com.airbnb.android:lottie:3.4.0"
+
     //RETROFIT
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'

@@ -36,17 +36,10 @@ class TrendingPagedAdapter(
     private var networkState = NetworkState.LOADING
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val gif = getItem(position)
+        val gif = getItem(position) ?: return
 
-        if (gif == null) {
-            (holder as EmptyViewHolder).bind()
-            return
-        }
-
-        when (holder) {
-            is GifViewHolder -> holder.bind(gif)
-            is LoadingViewHolder -> holder.bind()
-            else -> (holder as EmptyViewHolder).bind()
+        if (holder is GifViewHolder) {
+            holder.bind(gif)
         }
     }
 
@@ -54,15 +47,14 @@ class TrendingPagedAdapter(
         val layoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             TYPE_LOADING -> {
-                LoadingViewHolder(parent)
+                val view = layoutInflater.inflate(R.layout.item_loading, parent, false)
+                LoadingViewHolder(view)
             }
             TYPE_GIF -> {
                 val view = layoutInflater.inflate(R.layout.item_trending, parent, false)
                 GifViewHolder(view, listener, glide)
             }
-            else -> {
-                EmptyViewHolder(parent)
-            }
+            else -> EmptyViewHolder(parent)
         }
     }
 
@@ -105,13 +97,7 @@ class TrendingPagedAdapter(
         }
     }
 
-    class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind() {
-        }
-    }
+    class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind() {
-        }
-    }
+    class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view)
 }
