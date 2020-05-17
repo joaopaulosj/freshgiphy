@@ -5,13 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.repositories.IGiphyRepository
-import com.joao.freshgiphy.utils.extensions.singleSubscribe
 
-class FavouritesViewModel constructor(repository: IGiphyRepository) : ViewModel() {
+class FavouritesViewModel constructor(private val repository: IGiphyRepository) : ViewModel() {
 
     private val favsLiveData = repository.getFavourites()
 
     fun getFavourites(): LiveData<List<Gif>> = favsLiveData
+
+    fun onFavClick(gif: Gif) {
+        if (!gif.isFavourite) {
+            repository.addFavourite(gif)
+        } else {
+            repository.removeFavourite(gif)
+        }
+    }
 }
 
 class FavouritesViewModelFactory(

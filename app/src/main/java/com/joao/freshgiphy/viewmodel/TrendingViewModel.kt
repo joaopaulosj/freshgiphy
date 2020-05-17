@@ -1,6 +1,5 @@
 package com.joao.freshgiphy.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -13,6 +12,7 @@ import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
 import com.joao.freshgiphy.ui.datasource.TrendingDataSource
 import com.joao.freshgiphy.utils.Constants
+import com.joao.freshgiphy.utils.SingleLiveEvent
 import java.util.concurrent.Executors
 
 
@@ -42,11 +42,13 @@ class TrendingViewModel constructor(
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
+    fun onGifChanged(): SingleLiveEvent<Gif> = repository.onGifChanged()
+
     fun onFavClick(gif: Gif) {
-        if (gif.isFavourite) {
-            repository.addFavorite(gif)
+        if (!gif.isFavourite) {
+            repository.addFavourite(gif)
         } else {
-            repository.removeFavorite(gif.id)
+            repository.removeFavourite(gif)
         }
     }
 

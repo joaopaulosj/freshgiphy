@@ -6,15 +6,13 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.R
-import kotlinx.android.synthetic.main.item_trending.view.*
 
 
 class TrendingPagedAdapter(
-    val listener: GifClickListener
+    private val listener: GifClickListener
 ) : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diffCallback) {
     //TODO put glide
 
@@ -78,6 +76,15 @@ class TrendingPagedAdapter(
         return networkState !== NetworkState.LOADED
     }
 
+    fun updateItem(item: Gif) {
+        val index = currentList?.indexOfFirst { it.id == item.id } ?: -1
+
+        if (index >= 0) {
+            getItem(index)?.isFavourite = item.isFavourite
+            notifyItemChanged(index)
+        }
+    }
+
     fun setNetworkState(newNetworkState: NetworkState) {
         val previousState = networkState
         val previousExtraRow = hasExtraRow()
@@ -105,34 +112,4 @@ class TrendingPagedAdapter(
         fun bind() {
         }
     }
-}
-
-interface GifClickListener {
-    fun onFavClicked(gif: Gif)
-}
-
-class GifViewHolder(
-    view: View, private val listener: GifClickListener
-) : RecyclerView.ViewHolder(view) {
-
-    fun bind(item: Gif) {
-        itemView.apply {
-            itemTrendingImg.setDimensions(item.height, item.width)
-
-            Glide.with(context)
-                .load(item.url)
-                .placeholder(R.color.colorAccent)
-                .into(itemTrendingImg)
-
-            itemTrendingFavImg.setImageResource(getFavIcon(item))
-
-            itemTrendingFavImg.setOnClickListener {
-                item.isFavourite = !item.isFavourite
-                itemTrendingFavImg.setImageResource(getFavIcon(item))
-                listener.onFavClicked(item)
-            }
-        }
-    }
-
-    private fun getFavIcon(item: Gif) = if (item.isFavourite) R.drawable.ic_star else R.drawable.ic_star_border
 }

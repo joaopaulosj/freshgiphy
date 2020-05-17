@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.api.responses.ApiResponse
-import com.joao.freshgiphy.api.responses.GifResponse
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.utils.SingleLiveEvent
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -18,6 +18,7 @@ class GiphyRepository constructor(
 ) : IGiphyRepository {
 
     private val favouritesLiveData = db.userDao().getAll()
+    private val onGifChanged = SingleLiveEvent<Gif>()
 
     override fun getTrending(offset: Int): Single<ApiResponse> {
         return Single.zip(
@@ -51,17 +52,31 @@ class GiphyRepository constructor(
         return favouritesLiveData
     }
 
-    @SuppressLint("CheckResult")
-    override fun addFavorite(gif: Gif) {
-        Completable.complete()
-            .subscribeOn(Schedulers.io())
-            .subscribe { db.userDao().insert(gif) }
+    override fun onGifChanged(): SingleLiveEvent<Gif> {
+        return onGifChanged
     }
 
-    @SuppressLint("CheckResult")
-    override fun removeFavorite(id: String) {
+    @SuppressLint("CheckResult") //TODO
+    override fun addFavourite(gif: Gif) {
+        gif.isFavourite = true
+
         Completable.complete()
             .subscribeOn(Schedulers.io())
-            .subscribe { db.userDao().delete(id) }
+            .subscribe {
+                db.userDao().insert(gif)
+                onGifChanged.postValue(gif)
+            }
+    }
+
+    @SuppressLint("CheckResult") //TODO
+    override fun removeFavourite(gif: Gif) {
+        gif.isFavourite = false
+
+        Completable.complete()
+            .subscribeOn(Schedulers.io())
+            .subscribe {
+                db.userDao().delete(gif.id)
+                onGifChanged.postValue(gif)
+            }
     }
 }

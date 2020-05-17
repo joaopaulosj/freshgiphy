@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
-import com.joao.freshgiphy.di.AppContainer
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
@@ -69,6 +68,7 @@ class TrendingFragment : Fragment(), GifClickListener {
     private fun setupObservers() {
         viewModel.getGifs().observe(this, Observer { trendingAdapter.submitList(it) })
         viewModel.getNetworkState().observe(this, Observer { trendingAdapter.setNetworkState(it) })
+        viewModel.onGifChanged().observe(this, Observer { trendingAdapter.updateItem(it) })
     }
 
 }
