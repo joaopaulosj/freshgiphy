@@ -21,7 +21,6 @@ class TrendingViewModel constructor(
     private val trendingFactory: TrendingDataFactory
 ) : ViewModel() {
 
-    private val isListEmptyEvent = SingleLiveEvent<Boolean>()
     private val executor = Executors.newFixedThreadPool(5)
 
     private val networkState = Transformations.switchMap<TrendingDataSource, NetworkState>(
@@ -37,24 +36,13 @@ class TrendingViewModel constructor(
 
     private var gifsLiveData = LivePagedListBuilder<Long, Gif>(trendingFactory, pagedListConfig)
         .setFetchExecutor(executor)
-        .setBoundaryCallback(object : PagedList.BoundaryCallback<Gif>() {
-            override fun onZeroItemsLoaded() {
-                super.onZeroItemsLoaded()
-                isListEmptyEvent.postValue(true)
-            }
-
-            override fun onItemAtFrontLoaded(itemAtFront: Gif) {
-                super.onItemAtFrontLoaded(itemAtFront)
-                isListEmptyEvent.postValue(false)
-            }
-        })
         .build()
 
     fun getNetworkState(): LiveData<NetworkState> = networkState
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
-    fun getIsListEmpty(): SingleLiveEvent<Boolean> = isListEmptyEvent
+    fun getIsListEmpty(): SingleLiveEvent<Boolean> = repository.emptyListEvent()
 
     fun onGifChanged(): SingleLiveEvent<Gif> = repository.onGifChanged()
 

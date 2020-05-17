@@ -63,17 +63,17 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
     }
 
     private fun setupObservers() {
-        viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
+//        viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
         viewModel.onFavouriteGifChanged().observe(this, Observer { favouritesAdapter.updateItem(it) })
     }
 
     override fun isListEmpty(isEmpty: Boolean) {
         if (isEmpty) {
             recyclerView.visibility = View.GONE
-            emptyContainer.visibility = View.VISIBLE
+            emptyView.visibility = View.VISIBLE
         } else {
             recyclerView.visibility = View.VISIBLE
-            emptyContainer.visibility = View.GONE
+            emptyView.visibility = View.GONE
         }
     }
 }

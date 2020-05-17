@@ -17,6 +17,7 @@ class GiphyRepository constructor(
 
     private val onGifChanged = SingleLiveEvent<Gif>()
     private val onFavouriteGifChanged = SingleLiveEvent<Gif>()
+    private val emptyListEvent = SingleLiveEvent<Boolean>()
 
     override fun getTrending(offset: Int): Single<ApiResponse> {
         return Single.zip(
@@ -39,6 +40,8 @@ class GiphyRepository constructor(
     }
 
     private fun setFavourites(fromApi: ApiResponse, fromDb: List<Gif>): ApiResponse {
+        emptyListEvent.postValue(fromApi.data.isEmpty())
+
         fromApi.data.forEach { apiGif ->
             apiGif.isFavourite = fromDb.any { it.id == apiGif.id }
         }
@@ -56,6 +59,10 @@ class GiphyRepository constructor(
 
     override fun onFavouriteGifChanged(): SingleLiveEvent<Gif> {
         return onFavouriteGifChanged
+    }
+
+    override fun emptyListEvent(): SingleLiveEvent<Boolean> {
+        return emptyListEvent
     }
 
     //TODO warning

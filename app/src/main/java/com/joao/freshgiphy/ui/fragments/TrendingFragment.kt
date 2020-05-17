@@ -15,7 +15,6 @@ import com.bumptech.glide.Glide
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
-import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
@@ -119,10 +118,10 @@ class TrendingFragment : Fragment(), GifClickListener {
     private fun onListIsEmpty(isEmpty: Boolean) {
         if (isEmpty) {
             recyclerView.visibility = View.GONE
-            emptyAnim.visibility = View.VISIBLE
+            emptyView.visibility = View.VISIBLE
         } else {
             recyclerView.visibility = View.VISIBLE
-            emptyAnim.visibility = View.GONE
+            emptyView.visibility = View.GONE
         }
     }
 
