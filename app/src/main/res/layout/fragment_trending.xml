@@ -7,10 +7,44 @@
     android:orientation="vertical"
     tools:context=".ui.fragments.TrendingFragment">
 
-    <EditText
-        android:id="@+id/searchEdt"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        android:background="@color/colorWhite"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/searchEdt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="Search gifs"
+            android:imeOptions="actionDone"
+            android:inputType="textCapSentences"
+            android:maxLines="1"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="8dp" />
+
+        <ImageView
+            android:id="@+id/clearSearchBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="?selectableItemBackground"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/ic_clear"
+            tools:visibility="visible" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -20,6 +20,7 @@ import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.addTextWatcherDebounce
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.fragment_trending.*
 
 class TrendingFragment : Fragment(), GifClickListener {
@@ -51,15 +52,26 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     private fun setupViews() {
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+
         recyclerView.apply {
             this.adapter = trendingPagedAdapter
             this.layoutManager = LinearLayoutManager(activity)
             itemAnimator = null
         }
 
-        searchEdt.addTextWatcherDebounce(Constants.EDIT_TEXT_DEBOUNCE_TIME) { viewModel.search(it) }
-
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        clearSearchBtn.setOnClickListener {
+            clearSearchBtn.visibility = View.INVISIBLE
+            searchEdt.setText("")
+        }
+        searchEdt.addTextWatcherDebounce(Constants.EDIT_TEXT_DEBOUNCE_TIME) {
+            viewModel.search(it)
+            if (it.isBlank()) {
+                clearSearchBtn.visibility = View.INVISIBLE
+            } else {
+                clearSearchBtn.visibility = View.VISIBLE
+            }
+        }
     }
 
     override fun onFavouriteClicked(gif: Gif) {
