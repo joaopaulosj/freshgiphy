@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTabs() {
-        val fragments = listOf(TrendingFragment(), FavouritesFragment())
+        val fragments = listOf<Fragment>(TrendingFragment(), FavouritesFragment())
 
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int): Fragment {
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = if(position == 0){
+            tab.text = if (position == 0) {
                 "TRENDING"
             } else {
                 "FAVOURITES"

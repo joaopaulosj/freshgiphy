@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.item_trending.view.*
 
 
 class TrendingPagedAdapter(
-    val listener: ClickListener
+    val listener: GifClickListener
 ) : PagedListAdapter<Gif, RecyclerView.ViewHolder>(diffCallback) {
     //TODO put glide
 
@@ -58,7 +58,7 @@ class TrendingPagedAdapter(
             }
             TYPE_GIF -> {
                 val view = layoutInflater.inflate(R.layout.item_trending, parent, false)
-                GifViewHolder(view)
+                GifViewHolder(view, listener)
             }
             else -> {
                 EmptyViewHolder(parent)
@@ -96,23 +96,6 @@ class TrendingPagedAdapter(
         }
     }
 
-    inner class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(item: Gif) {
-            itemView.apply {
-                itemTrendingImg.setDimensions(item.height, item.width)
-
-                Glide.with(context)
-                    .load(item.url)
-                    .placeholder(R.color.colorAccent)
-                    .into(itemTrendingImg)
-
-                itemTrendingFavImg.setOnClickListener {
-                    listener.onFavClicked(item)
-                }
-            }
-        }
-    }
-
     class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind() {
         }
@@ -122,8 +105,34 @@ class TrendingPagedAdapter(
         fun bind() {
         }
     }
+}
 
-    interface ClickListener {
-        fun onFavClicked(gif: Gif)
+interface GifClickListener {
+    fun onFavClicked(gif: Gif)
+}
+
+class GifViewHolder(
+    view: View, private val listener: GifClickListener
+) : RecyclerView.ViewHolder(view) {
+
+    fun bind(item: Gif) {
+        itemView.apply {
+            itemTrendingImg.setDimensions(item.height, item.width)
+
+            Glide.with(context)
+                .load(item.url)
+                .placeholder(R.color.colorAccent)
+                .into(itemTrendingImg)
+
+            itemTrendingFavImg.setImageResource(getFavIcon(item))
+
+            itemTrendingFavImg.setOnClickListener {
+                item.isFavourite = !item.isFavourite
+                itemTrendingFavImg.setImageResource(getFavIcon(item))
+                listener.onFavClicked(item)
+            }
+        }
     }
+
+    private fun getFavIcon(item: Gif) = if (item.isFavourite) R.drawable.ic_star else R.drawable.ic_star_border
 }

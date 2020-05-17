@@ -14,13 +14,14 @@ import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.di.AppContainer
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.addTextWatcherDebounce
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
 
-class TrendingFragment : Fragment(), TrendingPagedAdapter.ClickListener {
+class TrendingFragment : Fragment(), GifClickListener {
 
     private lateinit var viewModel: TrendingViewModel
 

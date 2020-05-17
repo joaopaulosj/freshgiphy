@@ -6,11 +6,15 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.joao.freshgiphy.models.Gif
+import io.reactivex.Single
 
 @Dao
 interface GifDao {
     @Query("SELECT * FROM gif ORDER BY dbId DESC")
     fun getAll(): LiveData<List<Gif>>
+
+    @Query("SELECT * FROM gif ORDER BY dbId DESC")
+    fun getAllRx(): Single<List<Gif>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(gif: Gif)

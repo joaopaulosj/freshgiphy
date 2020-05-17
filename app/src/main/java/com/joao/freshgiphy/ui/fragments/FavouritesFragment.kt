@@ -14,16 +14,18 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
+import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
+import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
 
-class FavouritesFragment : Fragment() {
+class FavouritesFragment : Fragment(), GifClickListener {
 
     private lateinit var viewModel: FavouritesViewModel
 
     private val favouritesAdapter by lazy {
-        FavouritesAdapter()
+        FavouritesAdapter(this)
     }
 
     override fun onCreateView(
@@ -42,6 +44,10 @@ class FavouritesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
         setupObservers()
+    }
+
+    override fun onFavClicked(gif: Gif) {
+        
     }
 
     private fun setupViews() {

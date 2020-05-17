@@ -19,6 +19,7 @@ fun GifResponse.toGif(): Gif {
         id = id,
         url = images.downsized.url,
         height = images.downsized.height,
-        width = images.downsized.width
+        width = images.downsized.width,
+        isFavourite = isFavourite
     )
 }

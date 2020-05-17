@@ -13,7 +13,7 @@ import com.joao.freshgiphy.R
 import kotlinx.android.synthetic.main.item_trending.view.*
 
 
-class FavouritesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FavouritesAdapter(private val listener: GifClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var gifList = listOf<Gif>()
 
@@ -24,7 +24,7 @@ class FavouritesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_trending, parent, false)
-        return GifViewHolder(view)
+        return GifViewHolder(view, listener)
     }
 
     override fun getItemCount() = gifList.size
@@ -32,19 +32,6 @@ class FavouritesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is GifViewHolder) {
             holder.bind(gifList[position])
-        }
-    }
-
-    private class GifViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(item: Gif) {
-            itemView.apply {
-                itemTrendingImg.setDimensions(item.height, item.width)
-
-                Glide.with(context)
-                    .load(item.url)
-                    .placeholder(R.color.colorPrimary)
-                    .into(itemTrendingImg)
-            }
         }
     }
 }
