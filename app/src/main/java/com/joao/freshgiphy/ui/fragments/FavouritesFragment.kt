@@ -1,12 +1,14 @@
 package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -48,7 +50,15 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
     }
 
     override fun onFavouriteClicked(gif: Gif) {
-        viewModel.onFavouriteClick(gif)
+        //TODO strings
+        context?.let {
+            AlertDialog.Builder(it)
+                .setTitle("Are you sure?")
+                .setMessage("The gif will me removed from your favourites")
+                .setPositiveButton("Remove") { _, _ -> viewModel.onFavouriteClick(gif) }
+                .setNegativeButton("Cancel") { _, _ -> }
+                .show()
+        }
     }
 
     private fun setupViews() {
@@ -63,7 +73,7 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
     }
 
     private fun setupObservers() {
-//        viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
+        viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
         viewModel.onFavouriteGifChanged().observe(this, Observer { favouritesAdapter.updateItem(it) })
     }
 

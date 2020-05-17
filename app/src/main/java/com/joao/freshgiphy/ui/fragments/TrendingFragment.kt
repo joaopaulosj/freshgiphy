@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
@@ -95,7 +96,19 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     override fun onFavouriteClicked(gif: Gif) {
-        viewModel.onFavouriteClick(gif)
+        // TODO strings
+        if (gif.isFavourite) {
+            context?.let {
+                AlertDialog.Builder(it)
+                    .setTitle("Are you sure?")
+                    .setMessage("The gif will me removed from your favourites")
+                    .setPositiveButton("Remove") { _, _ -> viewModel.onFavouriteClick(gif) }
+                    .setNegativeButton("Cancel") { _, _ -> }
+                    .show()
+            }
+        } else {
+            viewModel.onFavouriteClick(gif)
+        }
     }
 
     private fun setupObservers() {
