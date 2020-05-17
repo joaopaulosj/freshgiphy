@@ -18,6 +18,7 @@ class GiphyRepository constructor(
     private val onGifChanged = SingleLiveEvent<Gif>()
     private val onFavouriteGifChanged = SingleLiveEvent<Gif>()
     private val emptyListEvent = SingleLiveEvent<Boolean>()
+    private val errorEvent = SingleLiveEvent<String>()
 
     override fun getTrending(offset: Int): Single<ApiResponse> {
         return Single.zip(
@@ -26,7 +27,13 @@ class GiphyRepository constructor(
             BiFunction<ApiResponse, List<Gif>, ApiResponse> { fromApi, fromDb ->
                 return@BiFunction setFavourites(fromApi, fromDb)
             }
-        )
+        ).doOnSuccess {
+            if (it.meta.status != 200) {
+                errorEvent.postValue(it.meta.msg)
+            }
+        }.doOnError {
+            errorEvent.postValue(it.message)
+        }
     }
 
     override fun search(query: String, offset: Int): Single<ApiResponse> {
@@ -36,7 +43,13 @@ class GiphyRepository constructor(
             BiFunction<ApiResponse, List<Gif>, ApiResponse> { fromApi, fromDb ->
                 return@BiFunction setFavourites(fromApi, fromDb)
             }
-        )
+        ).doOnSuccess {
+            if (it.meta.status != 200) {
+                errorEvent.postValue(it.meta.msg)
+            }
+        }.doOnError {
+            errorEvent.postValue(it.message)
+        }
     }
 
     private fun setFavourites(fromApi: ApiResponse, fromDb: List<Gif>): ApiResponse {
@@ -63,6 +76,10 @@ class GiphyRepository constructor(
 
     override fun emptyListEvent(): SingleLiveEvent<Boolean> {
         return emptyListEvent
+    }
+
+    override fun onErrorReceived(): SingleLiveEvent<String> {
+        return errorEvent
     }
 
     //TODO warning

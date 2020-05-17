@@ -11,6 +11,7 @@ interface IGiphyRepository {
     fun getFavourites(): Single<List<Gif>>
     fun toggleFavourite(gif: Gif)
     fun onGifChanged(): SingleLiveEvent<Gif>
+    fun onErrorReceived(): SingleLiveEvent<String>
     fun onFavouriteGifChanged(): SingleLiveEvent<Gif>
     fun emptyListEvent(): SingleLiveEvent<Boolean>
 }

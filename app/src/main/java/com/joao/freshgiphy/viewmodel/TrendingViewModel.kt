@@ -46,6 +46,8 @@ class TrendingViewModel constructor(
 
     fun onGifChanged(): SingleLiveEvent<Gif> = repository.onGifChanged()
 
+    fun onErrorReceived(): SingleLiveEvent<String> = repository.onErrorReceived()
+
     fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
 
     fun refresh() {

@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
@@ -116,6 +117,7 @@ class TrendingFragment : Fragment(), GifClickListener {
         viewModel.onGifChanged().observe(this, Observer { trendingPagedAdapter.updateItem(it) })
         viewModel.getGifs().observe(this, Observer { onPageListLoaded(it) })
         viewModel.getIsListEmpty().observe(this, Observer { onListIsEmpty(it) })
+        viewModel.onErrorReceived().observe(this, Observer { displayError(it) })
     }
 
     private fun onPageListLoaded(list: PagedList<Gif>) {
@@ -136,6 +138,14 @@ class TrendingFragment : Fragment(), GifClickListener {
             recyclerView.visibility = View.VISIBLE
             emptyView.visibility = View.GONE
         }
+    }
+
+    private fun displayError(errorMsg: String) {
+        onListIsEmpty(true)
+
+        Snackbar.make(recyclerView, errorMsg, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.retry) { viewModel.refresh() }
+            .show()
     }
 
 }
