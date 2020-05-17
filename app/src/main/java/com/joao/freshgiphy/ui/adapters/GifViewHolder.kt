@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.models.Gif
-import kotlinx.android.synthetic.main.item_trending.view.*
+import kotlinx.android.synthetic.main.item_gif.view.*
 import kotlin.random.Random
 
 class GifViewHolder(

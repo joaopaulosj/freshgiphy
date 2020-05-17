@@ -1,17 +1,11 @@
 package com.joao.freshgiphy.ui.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.joao.freshgiphy.models.Gif
-import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.R
-import kotlinx.android.synthetic.main.item_trending.view.*
 
 
 class FavouritesAdapter(
@@ -27,7 +21,7 @@ class FavouritesAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_trending, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_gif, parent, false)
         return GifViewHolder(view, listener, glide)
     }
 

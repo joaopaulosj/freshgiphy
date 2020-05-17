@@ -73,7 +73,7 @@
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
                 android:visibility="gone"
-                tools:listitem="@layout/item_trending"
+                tools:listitem="@layout/item_gif"
                 tools:visibility="visible" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

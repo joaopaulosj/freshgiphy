@@ -51,7 +51,7 @@ class TrendingPagedAdapter(
                 LoadingViewHolder(view)
             }
             TYPE_GIF -> {
-                val view = layoutInflater.inflate(R.layout.item_trending, parent, false)
+                val view = layoutInflater.inflate(R.layout.item_gif, parent, false)
                 GifViewHolder(view, listener, glide)
             }
             else -> EmptyViewHolder(parent)
