@@ -7,7 +7,7 @@
     <string name="unknown_error">Unknown error</string>
 
     <string name="dialog_remove_title">Are you sure?</string>
-    <string name="dialog_remove_message">The gif will me removed from your favourites</string>
+    <string name="dialog_remove_message">The gif will be removed from your favourites</string>
 
     <string name="empty_list">No gifs to show</string>
 

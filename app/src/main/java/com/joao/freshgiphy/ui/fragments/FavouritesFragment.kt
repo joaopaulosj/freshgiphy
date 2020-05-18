@@ -21,6 +21,7 @@ import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.doNothing
+import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
 import kotlinx.android.synthetic.main.fragment_favourites.recyclerView
@@ -67,14 +68,7 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
     }
 
     override fun onFavouriteClicked(gif: Gif) {
-        context?.let {
-            AlertDialog.Builder(it)
-                .setTitle(getString(R.string.dialog_remove_title))
-                .setMessage(getString(R.string.dialog_remove_message))
-                .setPositiveButton(getString(R.string.remove)) { _, _ -> viewModel.onFavouriteClick(gif) }
-                .setNegativeButton(getString(R.string.cancel)) { _, _ -> doNothing() }
-                .show()
-        }
+        context?.removeDialog { viewModel.onFavouriteClick(gif) }
     }
 
     private fun setupViews() {

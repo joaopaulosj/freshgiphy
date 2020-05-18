@@ -26,6 +26,7 @@ import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.utils.extensions.hideKeyboard
+import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
@@ -120,14 +121,7 @@ class TrendingFragment : Fragment(), GifClickListener {
 
     override fun onFavouriteClicked(gif: Gif) {
         if (gif.isFavourite) {
-            context?.let {
-                AlertDialog.Builder(it)
-                    .setTitle(getString(R.string.dialog_remove_title))
-                    .setMessage(getString(R.string.dialog_remove_message))
-                    .setPositiveButton(getString(R.string.remove)) { _, _ -> viewModel.onFavouriteClick(gif) }
-                    .setNegativeButton(getString(R.string.cancel)) { _, _ -> doNothing() }
-                    .show()
-            }
+            context?.removeDialog { viewModel.onFavouriteClick(gif) }
         } else {
             viewModel.onFavouriteClick(gif)
         }
