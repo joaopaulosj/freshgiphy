@@ -31,7 +31,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
-import java.util.concurrent.TimeUnit
 
 @RunWith(MockitoJUnitRunner::class)
 class TrendingViewModelTest : LifecycleOwner {
@@ -180,7 +179,7 @@ class TrendingViewModelTest : LifecycleOwner {
     @Test
     fun `WHEN a search is entered THEN should do search request with text`() {
         // Execution
-        viewModel.search("search")
+        viewModel.onSearchQuery("search")
 
         // Assertion
         verify(viewModel, times(1)).updateQueryOnDataFactory("search")

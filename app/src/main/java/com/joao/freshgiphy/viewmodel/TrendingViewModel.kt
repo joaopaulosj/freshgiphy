@@ -26,7 +26,6 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
 
     private val executor = Executors.newFixedThreadPool(5)
     private val listStatusEvent = SingleLiveEvent<ListStatus>()
-    private val onGifChangedLiveData = MediatorLiveData<Gif>()
 
     @VisibleForTesting
     var trendingDataFactory = TrendingDataFactory(this)
@@ -46,25 +45,24 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
         .setFetchExecutor(executor)
         .build()
 
-    init {
-        onGifChangedLiveData.addSource(repository.trendingChangeEvent) {
-            onGifChangedLiveData.postValue(it)
-        }
-    }
-
     fun getNetworkState(): LiveData<NetworkState> = networkState
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
-    fun onGifChanged(): MediatorLiveData<Gif> = onGifChangedLiveData
+    fun onGifChanged(): SingleLiveEvent<Gif> = repository.trendingChangeEvent
+
+    fun listStatusEvent(): SingleLiveEvent<ListStatus> = listStatusEvent
 
     fun onFavouriteClick(gif: Gif) {
         repository.toggleFavourite(gif)
     }
 
-    fun listStatusEvent(): SingleLiveEvent<ListStatus> = listStatusEvent
-
     fun refresh() {
+        invalidateDataFactory()
+    }
+
+    fun onSearchQuery(query: String) {
+        updateQueryOnDataFactory(query)
         invalidateDataFactory()
     }
 
@@ -90,11 +88,6 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
                 listStatusEvent.postValue(ListStatus(Status.ERROR))
                 listStatusEvent.postValue(ListStatus(Status.ERROR, it.message))
             }
-    }
-
-    fun search(query: String) {
-        updateQueryOnDataFactory(query)
-        invalidateDataFactory()
     }
 
     @VisibleForTesting

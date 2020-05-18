@@ -99,7 +99,7 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     private fun onSearchChange(text: String) {
-        viewModel.search(text)
+        viewModel.onSearchQuery(text)
 
         clearSearchBtn.visibility = if (text.isBlank()) {
             View.INVISIBLE

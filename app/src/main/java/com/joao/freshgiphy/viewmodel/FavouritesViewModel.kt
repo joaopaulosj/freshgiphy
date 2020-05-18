@@ -17,15 +17,7 @@ class FavouritesViewModel constructor(
     private val androidScheduler: Scheduler
 ) : ViewModel() {
 
-    private val onGifChangedLiveData = MediatorLiveData<Gif>()
-
     private val favouritesLiveData = MutableLiveData<List<Gif>>()
-
-    init {
-        onGifChangedLiveData.addSource(repository.favouriteChangeEvent) {
-            onGifChangedLiveData.postValue(it)
-        }
-    }
 
     fun loadFavourites() {
         repository.getFavourites()
@@ -39,7 +31,7 @@ class FavouritesViewModel constructor(
 
     fun getFavourites(): LiveData<List<Gif>> = favouritesLiveData
 
-    fun onGifChanged(): MediatorLiveData<Gif> = onGifChangedLiveData
+    fun onGifChanged(): SingleLiveEvent<Gif> = repository.favouriteChangeEvent
 
     fun onFavouriteClick(gif: Gif) {
         repository.toggleFavourite(gif)
