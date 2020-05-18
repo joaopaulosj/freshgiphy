@@ -17,10 +17,9 @@ class GifViewHolder(
 ) : RecyclerView.ViewHolder(view) {
 
     private val colors = listOf(
-        R.color.colorGreen,
+        R.color.colorGreenLight,
         R.color.colorCyan,
         R.color.colorTeal,
-        R.color.colorBlue,
         R.color.colorDeepPurple,
         R.color.colorYellow,
         R.color.colorPink
