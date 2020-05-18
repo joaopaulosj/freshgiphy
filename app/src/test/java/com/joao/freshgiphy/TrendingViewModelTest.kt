@@ -5,7 +5,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
-import androidx.paging.PagedList
 import com.joao.freshgiphy.api.responses.ApiResponse
 import com.joao.freshgiphy.api.responses.GifImage
 import com.joao.freshgiphy.api.responses.GifPreview
@@ -13,15 +12,18 @@ import com.joao.freshgiphy.api.responses.GifResponse
 import com.joao.freshgiphy.api.responses.MetaResponse
 import com.joao.freshgiphy.api.responses.PaginationResponse
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.models.ListStatus
+import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.repositories.GiphyRepository
 import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
-import com.joao.freshgiphy.utils.SingleLiveEvent
+import com.joao.freshgiphy.utils.extensions.rxSubscribe
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.Single
+import io.reactivex.schedulers.TestScheduler
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -29,6 +31,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.concurrent.TimeUnit
 
 @RunWith(MockitoJUnitRunner::class)
 class TrendingViewModelTest : LifecycleOwner {
@@ -40,29 +43,29 @@ class TrendingViewModelTest : LifecycleOwner {
 
     private lateinit var viewModel: TrendingViewModel
 
+    @Mock
     private lateinit var repository: GiphyRepository
 
     @Mock
-    private lateinit var trendingFactory: TrendingDataFactory
+    private lateinit var listStatusObserver: Observer<ListStatus>
 
-    @Mock
-    private lateinit var gifsPagedListObserver: Observer<PagedList<Gif>>
+    private lateinit var trendingDataFactory: TrendingDataFactory
 
-    @Mock
-    private lateinit var gifChangedObserver: Observer<Gif>
+    private lateinit var testScheduler: TestScheduler
 
-    private lateinit var apiResponseMock: ApiResponse
+    private lateinit var apiSuccessResponseMock: ApiResponse
+    private lateinit var apiEmptyResponseMock: ApiResponse
+    private lateinit var apiCodeErrorResponseMock: ApiResponse
 
     @Before
     fun setup() {
         initMocks()
         MockitoAnnotations.initMocks(this)
 
-        whenever(repository.onTrendingGifChanged()).thenReturn(SingleLiveEvent())
+        testScheduler = TestScheduler(1, TimeUnit.MILLISECONDS)
 
-        viewModel = spy(TrendingViewModel(repository, trendingFactory))
-        viewModel.getGifs().observe(this, gifsPagedListObserver)
-        viewModel.onGifChanged().observe(this, gifChangedObserver)
+        viewModel = spy(TrendingViewModel(repository, testScheduler, testScheduler))
+        viewModel.trendingDataFactory = TrendingDataFactory(viewModel)
     }
 
     private fun initMocks() {
@@ -71,7 +74,9 @@ class TrendingViewModelTest : LifecycleOwner {
         val data = listOf(gifResponse)
         val pagination = PaginationResponse(1, 1, 0)
         val meta = MetaResponse(200, "")
-        apiResponseMock = ApiResponse(data, pagination, meta)
+        apiSuccessResponseMock = ApiResponse(data, pagination, meta)
+        apiEmptyResponseMock = ApiResponse(emptyList(), pagination, meta)
+        apiCodeErrorResponseMock = ApiResponse(emptyList(), pagination, MetaResponse(401, "Unauthorized"))
     }
 
     override fun getLifecycle(): Lifecycle {
@@ -79,90 +84,192 @@ class TrendingViewModelTest : LifecycleOwner {
     }
 
     @Test
-    fun `WHEN do first gifs request and receives data THEN should pass it to gifsLiveData`() {
+    fun `WHEN do first gifs request and receives data THEN should update status to default`() {
         // Configuration
-        whenever(repository.getTrending(any())).thenReturn(Single.just(apiResponseMock))
+        whenever(repository.getTrending(0)).thenReturn(Single.just(apiSuccessResponseMock))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
-        repository.getTrending(0)
+        viewModel.getTrending(0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
 
         // Assertion
-        verify(gifsPagedListObserver).onChanged(any())
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.DEFAULT))
     }
 
     @Test
-    fun `WHEN do first gifs request and receives no data THEN should pass it to gifsLiveData`() {
+    fun `WHEN do first gifs request and receives no data THEN should update status to empty`() {
         // Configuration
+        whenever(repository.getTrending(0)).thenReturn(Single.just(apiEmptyResponseMock))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
+        viewModel.getTrending(0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
 
         // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.EMPTY))
     }
 
     @Test
-    fun `WHEN do first gifs request and receives an error THEN should show error`() {
+    fun `WHEN do first gifs request and receives an api code error THEN should show error`() {
         // Configuration
+        whenever(repository.getTrending(0)).thenReturn(Single.just(apiCodeErrorResponseMock))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
+        viewModel.getTrending(0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
 
         // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.ERROR, "Unauthorized"))
     }
 
     @Test
-    fun `WHEN a gif is favorited THEN should update item in list`() {
+    fun `WHEN do first gifs request and receives an request error THEN should show error`() {
+        // Configuration
+        whenever(repository.getTrending(0)).thenReturn(Single.error(Throwable("Error")))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
+
+        // Execution
+        viewModel.getTrending(0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
+
+        // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.ERROR, "Error"))
+    }
+
+    @Test
+    fun `WHEN a gif is clicked THEN should call toggle favourite in repository`() {
         // Configuration
         val gif = Gif(id = "id", url = "url", isFavourite = false)
+        whenever(repository.toggleFavourite(gif)).thenReturn(
+            Single.just(gif.apply { isFavourite = !isFavourite })
+        )
+
+        testScheduler.triggerActions()
 
         // Execution
         viewModel.onFavouriteClick(gif)
 
         // Assertion
-        verify(gifChangedObserver).onChanged(gif)
+        verify(repository, times(1)).toggleFavourite(gif)
     }
 
-    @Test
-    fun `WHEN a gif is unfavorited THEN should update item in list`() {
-        // Configuration
-
-        // Execution
-
-        // Assertion
-    }
 
     @Test
-    fun `WHEN refresh is called THEN should repeat last request`() {
-        // Configuration
-
+    fun `WHEN refresh is called THEN should invalidate paging data factory`() {
         // Execution
+        viewModel.refresh()
 
         // Assertion
+        verify(viewModel, times(1)).invalidateDataFactory()
     }
 
     @Test
     fun `WHEN a search is entered THEN should do search request with text`() {
-        // Configuration
-
         // Execution
+        viewModel.search("search")
 
         // Assertion
+        verify(viewModel, times(1)).updateQueryOnDataFactory("search")
+        verify(viewModel, times(1)).invalidateDataFactory()
     }
 
     @Test
-    fun `WHEN a search doesnt return results THEN should show empty list`() {
+    fun `WHEN a search request receives data THEN should update status to default`() {
         // Configuration
+        whenever(repository.search("query",0)).thenReturn(Single.just(apiSuccessResponseMock))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
+        viewModel.search("query", 0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
 
         // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.DEFAULT))
     }
 
     @Test
-    fun `WHEN a search returns an error THEN should show error`() {
+    fun `WHEN a search request doesnt receive data THEN should update status to empty`() {
         // Configuration
+        whenever(repository.search("query",0)).thenReturn(Single.just(apiEmptyResponseMock))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
+        viewModel.search("query", 0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
 
         // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.EMPTY))
+    }
+
+    @Test
+    fun `WHEN a search request receives api code error THEN should update status to error`() {
+        // Configuration
+        whenever(repository.search("query",0)).thenReturn(Single.just(apiCodeErrorResponseMock))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
+
+        // Execution
+        viewModel.search("query", 0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
+
+        // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.ERROR, "Unauthorized"))
+    }
+
+    @Test
+    fun `WHEN a search request receives request error THEN should update status to error`() {
+        // Configuration
+        whenever(repository.search("query",0)).thenReturn(Single.error(Throwable("error")))
+        viewModel.listStatusEvent().observeForever(listStatusObserver)
+
+        // Execution
+        viewModel.search("query", 0).rxSubscribe(
+            subscribeOnScheduler = testScheduler,
+            observeOnScheduler = testScheduler
+        )
+
+        testScheduler.triggerActions()
+
+        // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.ERROR, "error"))
     }
 
 }

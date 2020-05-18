@@ -51,9 +51,9 @@ class GiphyRepository constructor(
         gif.isFavourite = !gif.isFavourite
 
         Single.just(gif)
-            .rxSubscribe(
-                observeOnScheduler = Schedulers.io(),
-                onSuccess = {
+            .subscribeOn(Schedulers.io())
+            .subscribe(object : DisposableSingleObserver<Gif>() {
+                override fun onSuccess(gif: Gif) {
                     if (gif.isFavourite) {
                         db.userDao().insert(gif)
                     } else {
@@ -62,7 +62,12 @@ class GiphyRepository constructor(
 
                     favouriteChangeEvent.postValue(gif)
                     trendingChangeEvent.postValue(gif)
+                    dispose()
                 }
-            )
+
+                override fun onError(e: Throwable) {
+                    dispose()
+                }
+            })
     }
 }

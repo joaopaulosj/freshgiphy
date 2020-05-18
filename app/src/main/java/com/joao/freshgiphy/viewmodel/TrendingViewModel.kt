@@ -1,5 +1,6 @@
 package com.joao.freshgiphy.viewmodel
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
@@ -17,6 +18,7 @@ import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
 import com.joao.freshgiphy.ui.datasource.TrendingDataSource
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.SingleLiveEvent
+import com.joao.freshgiphy.utils.extensions.rxSubscribe
 import io.reactivex.Single
 import java.util.concurrent.Executors
 
@@ -25,9 +27,11 @@ class TrendingViewModel constructor(
 ) : ViewModel() {
 
     private val executor = Executors.newFixedThreadPool(5)
-    private val trendingDataFactory = TrendingDataFactory(this)
     private val listStatusEvent = SingleLiveEvent<ListStatus>()
     private val onGifChangedLiveData = MediatorLiveData<Gif>()
+
+    @VisibleForTesting
+    var trendingDataFactory = TrendingDataFactory(this)
 
     private val networkState = Transformations.switchMap<TrendingDataSource, NetworkState>(
         TrendingDataFactory(this).mutableLiveData
@@ -63,7 +67,7 @@ class TrendingViewModel constructor(
     fun listStatusEvent(): SingleLiveEvent<ListStatus> = listStatusEvent
 
     fun refresh() {
-        trendingDataFactory.mutableLiveData.value?.invalidate()
+        invalidateDataFactory()
     }
 
     fun search(query: String, offset: Int): Single<ApiResponse> {
@@ -91,10 +95,18 @@ class TrendingViewModel constructor(
     }
 
     fun search(query: String) {
-        trendingDataFactory.apply {
-            searchQuery = query
-            mutableLiveData.value?.invalidate()
-        }
+        updateQueryOnDataFactory(query)
+        invalidateDataFactory()
+    }
+
+    @VisibleForTesting
+    fun updateQueryOnDataFactory(query: String) {
+        trendingDataFactory.searchQuery = query
+    }
+
+    @VisibleForTesting
+    fun invalidateDataFactory() {
+        trendingDataFactory.mutableLiveData.value?.invalidate()
     }
 
 }

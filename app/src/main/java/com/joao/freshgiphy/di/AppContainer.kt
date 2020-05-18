@@ -8,7 +8,6 @@ import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.repositories.GiphyRepository
 import com.joao.freshgiphy.repositories.IGiphyRepository
-import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
 import com.joao.freshgiphy.viewmodel.FavouritesViewModelFactory
 import com.joao.freshgiphy.viewmodel.TrendingViewModelFactory
 import okhttp3.OkHttpClient
@@ -21,7 +20,9 @@ class AppContainer(private val context: Context) {
 
     //ViewModels
     val trendingViewModelFactory by lazy {
-        TrendingViewModelFactory(giphyRepository)
+        TrendingViewModelFactory(
+            giphyRepository
+        )
     }
 
     val favouritesViewModelFactory by lazy {
