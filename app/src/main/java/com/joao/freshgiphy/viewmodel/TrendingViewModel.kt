@@ -48,8 +48,6 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
-    fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
-
     fun refresh() {
         invalidateDataFactory()
     }
@@ -68,6 +66,8 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
         if (offset == 0) listStatusEvent.postValue(ListStatus(Status.LOADING))
         return doRequest(repository.getTrending(offset))
     }
+
+    override fun onGifClick(gif: Gif) = repository.toggleFavourite(gif)
 
     private fun doRequest(request: Single<ApiResponse>): Single<ApiResponse> {
         return request

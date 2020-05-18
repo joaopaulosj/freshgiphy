@@ -15,7 +15,6 @@ import com.joao.freshgiphy.R
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
-import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
 
@@ -58,15 +57,12 @@ class FavouritesFragment : BaseFragment<FavouritesViewModel>() {
         recyclerView.apply {
             this.adapter = favouritesAdapter
             this.layoutManager = layoutManager
+            setHasFixedSize(true)
         }
     }
 
     private fun setupObservers() {
         viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
-    }
-
-    override fun onGifClick(gif: Gif) {
-        context?.removeDialog { viewModel.onGifClick(gif) }
     }
 
     override fun onGifChanged(gif: Gif) {

@@ -11,6 +11,7 @@ import com.joao.freshgiphy.models.ListStatus
 import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.utils.Constants
+import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.viewmodel.BaseViewModel
 
 abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
@@ -27,16 +28,14 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        retainInstance = true
-
-//        val currentOrientation = resources.configuration.orientation
-//        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-//            trendingColumns = Constants.TRENDING_COLUMNS_PORTRAIT
-//            favouriteColumns = Constants.FAVOURITE_COLUMNS_PORTRAIT
-//        } else {
-//            trendingColumns = Constants.TRENDING_COLUMNS_LANDSCAPE
-//            favouriteColumns = Constants.FAVOURITE_COLUMNS_LANDSCAPE
-//        }
+        val currentOrientation = resources.configuration.orientation
+        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            trendingColumns = Constants.TRENDING_COLUMNS_PORTRAIT
+            favouriteColumns = Constants.FAVOURITE_COLUMNS_PORTRAIT
+        } else {
+            trendingColumns = Constants.TRENDING_COLUMNS_LANDSCAPE
+            favouriteColumns = Constants.FAVOURITE_COLUMNS_LANDSCAPE
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,8 +44,16 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
     }
 
     private fun setupObservers() {
-        viewModel.listStatusEvent().observe(this, Observer { updateListStatus(it) })
-        viewModel.gifChangedEvent().observe(this, Observer { onGifChanged(it) })
+        viewModel.listStatusEvent.observe(this, Observer { updateListStatus(it) })
+        viewModel.gifChangedEvent.observe(this, Observer { onGifChanged(it) })
+    }
+
+    override fun onGifClick(gif: Gif) {
+        if (gif.isFavourite) {
+            context?.removeDialog { viewModel.onGifClick(gif) }
+        } else {
+            viewModel.onGifClick(gif)
+        }
     }
 
     protected abstract fun displayError(errorMsg: String)

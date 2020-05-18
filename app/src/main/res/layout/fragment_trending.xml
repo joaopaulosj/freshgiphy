@@ -97,9 +97,8 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"
-                tools:listitem="@layout/item_gif"
-                tools:visibility="visible" />
+                android:visibility="visible"
+                tools:listitem="@layout/item_gif" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </FrameLayout>

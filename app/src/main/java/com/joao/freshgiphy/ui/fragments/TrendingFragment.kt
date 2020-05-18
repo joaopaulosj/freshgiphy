@@ -19,7 +19,6 @@ import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.hideKeyboard
-import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
@@ -58,7 +57,7 @@ class TrendingFragment : BaseFragment<TrendingViewModel>() {
 
     private fun setupViews() {
         ctnEmpty = emptyView
-        ctnList = recyclerView
+        ctnList = swipeRefresh
         ctnLoading = loadingAnim
 
         setupList()
@@ -76,7 +75,10 @@ class TrendingFragment : BaseFragment<TrendingViewModel>() {
             itemAnimator = null
         }
 
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        swipeRefresh.setOnRefreshListener {
+            viewModel.refresh()
+            swipeRefresh.isRefreshing = false
+        }
     }
 
     private fun onSearchChange(text: String) {
@@ -117,14 +119,6 @@ class TrendingFragment : BaseFragment<TrendingViewModel>() {
         }
     }
 
-    override fun onGifClick(gif: Gif) {
-        if (gif.isFavourite) {
-            context?.removeDialog { viewModel.onFavouriteClick(gif) }
-        } else {
-            viewModel.onFavouriteClick(gif)
-        }
-    }
-
     private fun setupObservers() {
         viewModel.getNetworkState().observe(this, Observer { trendingPagedAdapter.setNetworkState(it) })
         viewModel.getGifs().observe(this, Observer { onPageListLoaded(it) })
@@ -132,7 +126,6 @@ class TrendingFragment : BaseFragment<TrendingViewModel>() {
 
     private fun onPageListLoaded(list: PagedList<Gif>) {
         trendingPagedAdapter.submitList(list)
-        swipeRefresh.isRefreshing = false
     }
 
     override fun onGifChanged(gif: Gif) {

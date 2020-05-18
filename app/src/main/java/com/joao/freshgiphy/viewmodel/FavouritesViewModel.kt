@@ -45,7 +45,7 @@ class FavouritesViewModel constructor(
 
     fun getFavourites(): LiveData<List<Gif>> = favouritesLiveData
 
-    fun onGifClick(gif: Gif) = repository.toggleFavourite(gif)
+    override fun onGifClick(gif: Gif) = repository.toggleFavourite(gif)
 }
 
 class FavouritesViewModelFactory(
