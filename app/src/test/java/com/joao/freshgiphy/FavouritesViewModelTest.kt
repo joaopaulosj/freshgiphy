@@ -5,21 +5,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
-import com.joao.freshgiphy.api.responses.ApiResponse
-import com.joao.freshgiphy.api.responses.GifImage
-import com.joao.freshgiphy.api.responses.GifPreview
-import com.joao.freshgiphy.api.responses.GifResponse
-import com.joao.freshgiphy.api.responses.MetaResponse
-import com.joao.freshgiphy.api.responses.PaginationResponse
 import com.joao.freshgiphy.models.Gif
-import com.joao.freshgiphy.models.ListStatus
-import com.joao.freshgiphy.models.Status
-import com.joao.freshgiphy.models.toGif
 import com.joao.freshgiphy.repositories.GiphyRepository
-import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
-import com.joao.freshgiphy.utils.extensions.rxSubscribe
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
-import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -33,7 +21,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
-import java.util.concurrent.TimeUnit
 
 @RunWith(MockitoJUnitRunner::class)
 class FavouritesViewModelTest : LifecycleOwner {
@@ -77,7 +64,7 @@ class FavouritesViewModelTest : LifecycleOwner {
         val gif = Gif(id = "id", url = "url", isFavourite = false)
 
         // Execution
-        viewModel.onFavouriteClick(gif)
+        viewModel.onGifClick(gif)
 
         // Assertion
         verify(repository, times(1)).toggleFavourite(gif)

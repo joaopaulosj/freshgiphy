@@ -1,13 +1,11 @@
 package com.joao.freshgiphy.ui.fragments
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
@@ -17,10 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.widget.RxTextView
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.models.Gif
-import com.joao.freshgiphy.models.ListStatus
-import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.ui.activities.MainActivity
-import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.hideKeyboard
@@ -28,11 +23,14 @@ import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
+import kotlinx.android.synthetic.main.fragment_trending.emptyView
+import kotlinx.android.synthetic.main.fragment_trending.loadingAnim
+import kotlinx.android.synthetic.main.fragment_trending.recyclerView
 import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 
 
-class TrendingFragment : Fragment(), GifClickListener {
+class TrendingFragment : BaseFragment<TrendingViewModel>() {
 
     companion object {
         fun newInstance(): TrendingFragment {
@@ -40,22 +38,13 @@ class TrendingFragment : Fragment(), GifClickListener {
         }
     }
 
-    private lateinit var viewModel: TrendingViewModel
-
-    private var columnCount = Constants.TRENDING_COLUMNS_PORTRAIT
+    override lateinit var viewModel: TrendingViewModel
 
     private val trendingPagedAdapter by lazy {
         TrendingPagedAdapter(this, Glide.with(this))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val currentOrientation = resources.configuration.orientation
-        columnCount = if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            Constants.TRENDING_COLUMNS_PORTRAIT
-        } else {
-            Constants.TRENDING_COLUMNS_LANDSCAPE
-        }
-
         val factory = (requireActivity() as MainActivity).getAppContainer().trendingViewModelFactory
         viewModel = ViewModelProvider(this, factory).get(TrendingViewModel::class.java)
         return inflater.inflate(R.layout.fragment_trending, container, false)
@@ -68,9 +57,16 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     private fun setupViews() {
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        ctnEmpty = emptyView
+        ctnList = recyclerView
+        ctnLoading = loadingAnim
 
-        val layoutManager = StaggeredGridLayoutManager(columnCount, LinearLayout.VERTICAL).apply {
+        setupList()
+        setupClearField()
+    }
+
+    private fun setupList() {
+        val layoutManager = StaggeredGridLayoutManager(trendingColumns, LinearLayout.VERTICAL).apply {
             gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         }
 
@@ -80,6 +76,20 @@ class TrendingFragment : Fragment(), GifClickListener {
             itemAnimator = null
         }
 
+        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+    }
+
+    private fun onSearchChange(text: String) {
+        viewModel.onSearchQuery(text)
+
+        clearSearchBtn.visibility = if (text.isBlank()) {
+            View.INVISIBLE
+        } else {
+            View.VISIBLE
+        }
+    }
+
+    private fun setupClearField() {
         clearSearchBtn.setOnClickListener { onClearSearchClicked() }
 
         RxTextView.textChanges(searchEdt)
@@ -97,16 +107,6 @@ class TrendingFragment : Fragment(), GifClickListener {
         }
     }
 
-    private fun onSearchChange(text: String) {
-        viewModel.onSearchQuery(text)
-
-        clearSearchBtn.visibility = if (text.isBlank()) {
-            View.INVISIBLE
-        } else {
-            View.VISIBLE
-        }
-    }
-
     private fun onClearSearchClicked() {
         clearSearchBtn.visibility = View.INVISIBLE
 
@@ -117,7 +117,7 @@ class TrendingFragment : Fragment(), GifClickListener {
         }
     }
 
-    override fun onFavouriteClicked(gif: Gif) {
+    override fun onGifClick(gif: Gif) {
         if (gif.isFavourite) {
             context?.removeDialog { viewModel.onFavouriteClick(gif) }
         } else {
@@ -127,9 +127,7 @@ class TrendingFragment : Fragment(), GifClickListener {
 
     private fun setupObservers() {
         viewModel.getNetworkState().observe(this, Observer { trendingPagedAdapter.setNetworkState(it) })
-        viewModel.onGifChanged().observe(this, Observer { trendingPagedAdapter.updateItem(it) })
         viewModel.getGifs().observe(this, Observer { onPageListLoaded(it) })
-        viewModel.listStatusEvent().observe(this, Observer { updateListStatus(it) })
     }
 
     private fun onPageListLoaded(list: PagedList<Gif>) {
@@ -137,33 +135,11 @@ class TrendingFragment : Fragment(), GifClickListener {
         swipeRefresh.isRefreshing = false
     }
 
-    private fun updateListStatus(listStatus: ListStatus) {
-        when (listStatus.status) {
-            Status.LOADING -> {
-                loadingAnim.visibility = View.VISIBLE
-                emptyView.visibility = View.GONE
-                recyclerView.visibility = View.GONE
-            }
-            Status.EMPTY -> {
-                loadingAnim.visibility = View.GONE
-                emptyView.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
-            }
-            Status.ERROR -> {
-                displayError(listStatus.message ?: getString(R.string.unknown_error))
-                loadingAnim.visibility = View.GONE
-                emptyView.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
-            }
-            Status.SUCCESS -> {
-                loadingAnim.visibility = View.GONE
-                emptyView.visibility = View.GONE
-                recyclerView.visibility = View.VISIBLE
-            }
-        }
+    override fun onGifChanged(gif: Gif) {
+        trendingPagedAdapter.updateItem(gif)
     }
 
-    private fun displayError(errorMsg: String) {
+    override fun displayError(errorMsg: String) {
         Snackbar.make(recyclerView, errorMsg, Snackbar.LENGTH_INDEFINITE)
             .setAction(R.string.retry) { viewModel.refresh() }
             .show()

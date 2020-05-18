@@ -17,10 +17,11 @@ class FavouritesViewModel constructor(
     private val repository: IGiphyRepository,
     private val processScheduler: Scheduler,
     private val androidScheduler: Scheduler
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val favouritesLiveData = MutableLiveData<List<Gif>>()
-    private val listStatusEvent = SingleLiveEvent<ListStatus>()
+
+    override val gifChangedEvent = repository.favouriteChangeEvent
 
     fun loadFavourites() {
         listStatusEvent.postValue(ListStatus(Status.LOADING))
@@ -44,11 +45,7 @@ class FavouritesViewModel constructor(
 
     fun getFavourites(): LiveData<List<Gif>> = favouritesLiveData
 
-    fun getListStatus(): SingleLiveEvent<ListStatus> = listStatusEvent
-
-    fun onGifChanged(): SingleLiveEvent<Gif> = repository.favouriteChangeEvent
-
-    fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
+    fun onGifClick(gif: Gif) = repository.toggleFavourite(gif)
 }
 
 class FavouritesViewModelFactory(

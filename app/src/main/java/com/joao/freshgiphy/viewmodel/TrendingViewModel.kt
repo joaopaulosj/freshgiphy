@@ -20,10 +20,11 @@ import com.joao.freshgiphy.utils.SingleLiveEvent
 import io.reactivex.Single
 import java.util.concurrent.Executors
 
-class TrendingViewModel constructor(private val repository: IGiphyRepository) : ViewModel() {
+class TrendingViewModel constructor(private val repository: IGiphyRepository) : BaseViewModel() {
 
     private val executor = Executors.newFixedThreadPool(5)
-    private val listStatusEvent = SingleLiveEvent<ListStatus>()
+
+    override val gifChangedEvent = repository.trendingChangeEvent
 
     @VisibleForTesting
     var trendingDataFactory = TrendingDataFactory(this)
@@ -47,13 +48,7 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
-    fun onGifChanged(): SingleLiveEvent<Gif> = repository.trendingChangeEvent
-
-    fun listStatusEvent(): SingleLiveEvent<ListStatus> = listStatusEvent
-
-    fun onFavouriteClick(gif: Gif) {
-        repository.toggleFavourite(gif)
-    }
+    fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
 
     fun refresh() {
         invalidateDataFactory()

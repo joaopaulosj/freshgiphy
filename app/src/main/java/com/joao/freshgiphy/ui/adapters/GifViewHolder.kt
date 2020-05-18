@@ -54,12 +54,12 @@ class GifViewHolder(
                     itemGifFavAnim.playAnimation()
                 }
 
-                listener.onFavouriteClicked(item)
+                listener.onGifClick(item)
             }
         }
     }
 }
 
 interface GifClickListener {
-    fun onFavouriteClicked(gif: Gif)
+    fun onGifClick(gif: Gif)
 }
