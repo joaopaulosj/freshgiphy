@@ -5,8 +5,11 @@ import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.api.responses.ApiResponse
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.utils.SingleLiveEvent
+import com.joao.freshgiphy.utils.extensions.rxSubscribe
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import io.reactivex.observers.DisposableSingleObserver
+import io.reactivex.schedulers.Schedulers
 
 class GiphyRepository constructor(
     private val service: GiphyService,
@@ -44,29 +47,22 @@ class GiphyRepository constructor(
 
     override fun getFavourites() = db.userDao().getAll()
 
-    override fun toggleFavourite(gif: Gif): Single<Gif> {
-        return Single.create { emitter ->
-            val thread = Thread(
-                Runnable {
-                    try {
-                        gif.isFavourite = !gif.isFavourite
+    override fun toggleFavourite(gif: Gif) {
+        gif.isFavourite = !gif.isFavourite
 
-                        if (gif.isFavourite) {
-                            db.userDao().insert(gif)
-                        } else {
-                            db.userDao().delete(gif.id)
-                        }
-
-                        favouriteChangeEvent.postValue(gif)
-                        trendingChangeEvent.postValue(gif)
-                        emitter.onSuccess(gif)
-                    } catch (e: Exception) {
-                        emitter.onError(e)
+        Single.just(gif)
+            .rxSubscribe(
+                observeOnScheduler = Schedulers.io(),
+                onSuccess = {
+                    if (gif.isFavourite) {
+                        db.userDao().insert(gif)
+                    } else {
+                        db.userDao().delete(gif.id)
                     }
+
+                    favouriteChangeEvent.postValue(gif)
+                    trendingChangeEvent.postValue(gif)
                 }
             )
-
-            thread.start()
-        }
     }
 }

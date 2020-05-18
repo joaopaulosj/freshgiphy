@@ -12,5 +12,5 @@ interface IGiphyRepository {
     fun search(query: String, offset: Int): Single<ApiResponse>
     fun getTrending(offset: Int): Single<ApiResponse>
     fun getFavourites(): Single<List<Gif>>
-    fun toggleFavourite(gif: Gif): Single<Gif>
+    fun toggleFavourite(gif: Gif)
 }

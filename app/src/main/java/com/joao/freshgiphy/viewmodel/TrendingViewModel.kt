@@ -17,7 +17,6 @@ import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
 import com.joao.freshgiphy.ui.datasource.TrendingDataSource
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.SingleLiveEvent
-import com.joao.freshgiphy.utils.extensions.rxSubscribe
 import io.reactivex.Single
 import java.util.concurrent.Executors
 
@@ -59,9 +58,6 @@ class TrendingViewModel constructor(
 
     fun onFavouriteClick(gif: Gif) {
         repository.toggleFavourite(gif)
-            .rxSubscribe(onSuccess = {
-                onGifChangedLiveData.postValue(it)
-            })
     }
 
     fun listStatusEvent(): SingleLiveEvent<ListStatus> = listStatusEvent

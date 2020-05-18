@@ -36,9 +36,6 @@ class FavouritesViewModel constructor(private val repository: IGiphyRepository) 
 
     fun onFavouriteClick(gif: Gif) {
         repository.toggleFavourite(gif)
-            .rxSubscribe(onSuccess = {
-                onGifChangedLiveData.postValue(it)
-            })
     }
 }
 
