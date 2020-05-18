@@ -77,6 +77,8 @@ class TrendingFragment : BaseView<TrendingViewModel>() {
 
         swipeRefresh.setOnRefreshListener {
             viewModel.refresh()
+
+            //Don't need to keep it showing because screen has a loading animation already
             swipeRefresh.isRefreshing = false
         }
     }
