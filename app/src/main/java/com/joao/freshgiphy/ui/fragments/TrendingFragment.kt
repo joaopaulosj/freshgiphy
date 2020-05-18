@@ -1,24 +1,22 @@
 package com.joao.freshgiphy.ui.fragments
 
-import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.widget.RxTextView
 import com.joao.freshgiphy.R
-import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.models.ListStatus
 import com.joao.freshgiphy.models.Status
@@ -32,7 +30,6 @@ import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
 import kotlinx.android.synthetic.main.fragment_trending.*
 import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 
@@ -46,19 +43,23 @@ class TrendingFragment : Fragment(), GifClickListener {
 
     private lateinit var viewModel: TrendingViewModel
 
+    private var columnCount = Constants.TRENDING_COLUMNS_PORTRAIT
+
     private val trendingPagedAdapter by lazy {
         TrendingPagedAdapter(this, Glide.with(this))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_trending, container, false)
-    }
+        val currentOrientation = resources.configuration.orientation
+        columnCount = if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            Constants.TRENDING_COLUMNS_PORTRAIT
+        } else {
+            Constants.TRENDING_COLUMNS_LANDSCAPE
+        }
 
-    override fun onAttach(context: Context) {
-        val factory = (activity as MainActivity).getAppContainer().trendingViewModelFactory
+        val factory = (requireActivity() as MainActivity).getAppContainer().trendingViewModelFactory
         viewModel = ViewModelProvider(this, factory).get(TrendingViewModel::class.java)
-
-        super.onAttach(context)
+        return inflater.inflate(R.layout.fragment_trending, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,9 +71,13 @@ class TrendingFragment : Fragment(), GifClickListener {
     private fun setupViews() {
         swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
+        val layoutManager = StaggeredGridLayoutManager(columnCount, LinearLayout.VERTICAL).apply {
+            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+        }
+
         recyclerView.apply {
             this.adapter = trendingPagedAdapter
-            this.layoutManager = LinearLayoutManager(activity)
+            this.layoutManager = layoutManager
             itemAnimator = null
         }
 
@@ -147,8 +152,6 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     private fun updateListStatus(listStatus: ListStatus) {
-        Log.i("-----", "status: ${listStatus.status.name}")
-
         when (listStatus.status) {
             Status.LOADING -> {
                 loadingAnim.visibility = View.VISIBLE

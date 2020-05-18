@@ -1,6 +1,7 @@
 package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
 import com.joao.freshgiphy.ui.adapters.GifClickListener
+import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
@@ -33,11 +35,20 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
 
     private lateinit var viewModel: FavouritesViewModel
 
+    private var columnCount = Constants.FAVOURITE_COLUMNS_PORTRAIT
+
     private val favouritesAdapter by lazy {
         FavouritesAdapter(this, this, Glide.with(this))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val currentOrientation = resources.configuration.orientation
+        columnCount = if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            Constants.FAVOURITE_COLUMNS_PORTRAIT
+        } else {
+            Constants.FAVOURITE_COLUMNS_LANDSCAPE
+        }
+
         return inflater.inflate(R.layout.fragment_favourites, container, false)
     }
 
@@ -67,7 +78,7 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
     }
 
     private fun setupViews() {
-        val layoutManager = StaggeredGridLayoutManager(2, LinearLayout.VERTICAL).apply {
+        val layoutManager = StaggeredGridLayoutManager(columnCount, LinearLayout.VERTICAL).apply {
             gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         }
 

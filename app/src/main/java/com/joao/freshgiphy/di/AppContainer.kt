@@ -22,9 +22,7 @@ class AppContainer(private val context: Context) {
 
     //ViewModels
     val trendingViewModelFactory by lazy {
-        TrendingViewModelFactory(
-            giphyRepository
-        )
+        TrendingViewModelFactory(giphyRepository)
     }
 
     val favouritesViewModelFactory by lazy {

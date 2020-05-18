@@ -22,9 +22,7 @@ import com.joao.freshgiphy.utils.extensions.rxSubscribe
 import io.reactivex.Single
 import java.util.concurrent.Executors
 
-class TrendingViewModel constructor(
-    private val repository: IGiphyRepository
-) : ViewModel() {
+class TrendingViewModel constructor(private val repository: IGiphyRepository) : ViewModel() {
 
     private val executor = Executors.newFixedThreadPool(5)
     private val listStatusEvent = SingleLiveEvent<ListStatus>()
