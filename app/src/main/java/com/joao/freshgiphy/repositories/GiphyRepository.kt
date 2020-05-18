@@ -4,6 +4,8 @@ import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.api.responses.ApiResponse
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.models.ListStatus
+import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.utils.SingleLiveEvent
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -17,44 +19,38 @@ class GiphyRepository constructor(
 
     private val onGifChanged = SingleLiveEvent<Gif>()
     private val onFavouriteGifChanged = SingleLiveEvent<Gif>()
-    private val emptyListEvent = SingleLiveEvent<Boolean>()
-    private val errorEvent = SingleLiveEvent<String>()
+    private val listStatusEvent = SingleLiveEvent<ListStatus>()
 
     override fun getTrending(offset: Int): Single<ApiResponse> {
-        return Single.zip(
-            service.getTrending(offset),
-            db.userDao().getAll(),
-            BiFunction<ApiResponse, List<Gif>, ApiResponse> { fromApi, fromDb ->
-                return@BiFunction setFavourites(fromApi, fromDb)
-            }
-        ).doOnSuccess {
-            if (it.meta.status != 200) {
-                errorEvent.postValue(it.meta.msg)
-            }
-        }.doOnError {
-            errorEvent.postValue(it.message)
-        }
+        if (offset == 0) listStatusEvent.postValue(ListStatus(Status.LOADING))
+        return doRequest(service.getTrending(offset))
     }
 
     override fun search(query: String, offset: Int): Single<ApiResponse> {
+        if (offset == 0) listStatusEvent.postValue(ListStatus(Status.LOADING))
+        return doRequest(service.search(query, offset))
+    }
+
+    private fun doRequest(request: Single<ApiResponse>): Single<ApiResponse> {
         return Single.zip(
-            service.search(query, offset),
+            request,
             db.userDao().getAll(),
             BiFunction<ApiResponse, List<Gif>, ApiResponse> { fromApi, fromDb ->
                 return@BiFunction setFavourites(fromApi, fromDb)
             }
         ).doOnSuccess {
-            if (it.meta.status != 200) {
-                errorEvent.postValue(it.meta.msg)
+            when {
+                it.meta.status != 200 -> listStatusEvent.postValue(ListStatus(Status.ERROR, it.meta.msg))
+                it.data.isEmpty() -> listStatusEvent.postValue(ListStatus(Status.EMPTY))
+                else -> listStatusEvent.postValue(ListStatus(Status.DEFAULT))
             }
         }.doOnError {
-            errorEvent.postValue(it.message)
+            listStatusEvent.postValue(ListStatus(Status.ERROR))
+            listStatusEvent.postValue(ListStatus(Status.ERROR, it.message))
         }
     }
 
     private fun setFavourites(fromApi: ApiResponse, fromDb: List<Gif>): ApiResponse {
-        emptyListEvent.postValue(fromApi.data.isEmpty())
-
         fromApi.data.forEach { apiGif ->
             apiGif.isFavourite = fromDb.any { it.id == apiGif.id }
         }
@@ -62,25 +58,13 @@ class GiphyRepository constructor(
         return fromApi
     }
 
-    override fun getFavourites(): Single<List<Gif>> {
-        return db.userDao().getAll()
-    }
+    override fun getFavourites() = db.userDao().getAll()
 
-    override fun onGifChanged(): SingleLiveEvent<Gif> {
-        return onGifChanged
-    }
+    override fun onTrendingGifChanged() = onGifChanged
 
-    override fun onFavouriteGifChanged(): SingleLiveEvent<Gif> {
-        return onFavouriteGifChanged
-    }
+    override fun onFavouriteGifChanged() = onFavouriteGifChanged
 
-    override fun emptyListEvent(): SingleLiveEvent<Boolean> {
-        return emptyListEvent
-    }
-
-    override fun onErrorReceived(): SingleLiveEvent<String> {
-        return errorEvent
-    }
+    override fun listStatusEvent() = listStatusEvent
 
     override fun toggleFavourite(gif: Gif) {
         gif.isFavourite = !gif.isFavourite

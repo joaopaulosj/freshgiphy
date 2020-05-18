@@ -4,6 +4,7 @@
     <string name="retry">Retry</string>
     <string name="remove">Remove</string>
     <string name="cancel">Cancel</string>
+    <string name="unknown_error">Unknown error</string>
 
     <string name="dialog_remove_title">Are you sure?</string>
     <string name="dialog_remove_message">The gif will me removed from your favourites</string>

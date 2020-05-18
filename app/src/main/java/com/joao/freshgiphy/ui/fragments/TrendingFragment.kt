@@ -2,6 +2,7 @@ package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,8 @@ import com.jakewharton.rxbinding.widget.RxTextView
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.models.ListStatus
+import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
@@ -93,8 +96,6 @@ class TrendingFragment : Fragment(), GifClickListener {
     private fun onSearchChange(text: String) {
         viewModel.search(text)
 
-        loadingAnim.playAnimation()
-
         clearSearchBtn.visibility = if (text.isBlank()) {
             View.INVISIBLE
         } else {
@@ -131,36 +132,46 @@ class TrendingFragment : Fragment(), GifClickListener {
         viewModel.getNetworkState().observe(this, Observer { trendingPagedAdapter.setNetworkState(it) })
         viewModel.onGifChanged().observe(this, Observer { trendingPagedAdapter.updateItem(it) })
         viewModel.getGifs().observe(this, Observer { onPageListLoaded(it) })
-        viewModel.getIsListEmpty().observe(this, Observer { onListIsEmpty(it) })
-        viewModel.onErrorReceived().observe(this, Observer { displayError(it) })
+        viewModel.listStatusEvent().observe(this, Observer { updateListStatus(it) })
     }
 
     private fun onPageListLoaded(list: PagedList<Gif>) {
         trendingPagedAdapter.submitList(list)
         swipeRefresh.isRefreshing = false
-
-        if (loadingAnim.visibility == View.VISIBLE) {
-            loadingAnim.visibility = View.GONE
-            loadingAnim.cancelAnimation()
-        }
-    }
-
-    private fun onListIsEmpty(isEmpty: Boolean) {
-        if (isEmpty) {
-            recyclerView.visibility = View.GONE
-            emptyView.visibility = View.VISIBLE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            emptyView.visibility = View.GONE
-        }
     }
 
     private fun displayError(errorMsg: String) {
-        onListIsEmpty(true)
-
         Snackbar.make(recyclerView, errorMsg, Snackbar.LENGTH_INDEFINITE)
             .setAction(R.string.retry) { viewModel.refresh() }
             .show()
+    }
+
+    private fun updateListStatus(listStatus: ListStatus) {
+        Log.i("-----", "status: ${listStatus.status.name}")
+
+        when (listStatus.status) {
+            Status.LOADING -> {
+                loadingAnim.visibility = View.VISIBLE
+                emptyView.visibility = View.GONE
+                recyclerView.visibility = View.GONE
+            }
+            Status.EMPTY -> {
+                loadingAnim.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            }
+            Status.ERROR -> {
+                displayError(listStatus.message ?: getString(R.string.unknown_error))
+                loadingAnim.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            }
+            Status.DEFAULT -> {
+                loadingAnim.visibility = View.GONE
+                emptyView.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+            }
+        }
     }
 
 }

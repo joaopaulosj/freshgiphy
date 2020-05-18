@@ -17,9 +17,9 @@ data class Gif(
 fun GifResponse.toGif(): Gif {
     return Gif(
         id = id,
-        url = images.downsized.url,
-        height = images.downsized.height,
-        width = images.downsized.width,
+        url = images.downsized?.url ?: "",
+        height = images.downsized?.height ?: 0,
+        width = images.downsized?.width ?: 0,
         isFavourite = isFavourite
     )
 }

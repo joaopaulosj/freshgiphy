@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.models.ListStatus
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
@@ -42,13 +43,11 @@ class TrendingViewModel constructor(
 
     fun getGifs(): LiveData<PagedList<Gif>> = gifsLiveData
 
-    fun getIsListEmpty(): SingleLiveEvent<Boolean> = repository.emptyListEvent()
-
-    fun onGifChanged(): SingleLiveEvent<Gif> = repository.onGifChanged()
-
-    fun onErrorReceived(): SingleLiveEvent<String> = repository.onErrorReceived()
+    fun onGifChanged(): SingleLiveEvent<Gif> = repository.onTrendingGifChanged()
 
     fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
+
+    fun listStatusEvent(): SingleLiveEvent<ListStatus> = repository.listStatusEvent()
 
     fun refresh() {
         trendingFactory.mutableLiveData.value?.invalidate()

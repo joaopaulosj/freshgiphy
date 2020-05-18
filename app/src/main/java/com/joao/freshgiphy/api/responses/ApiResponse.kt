@@ -16,13 +16,13 @@ data class GifResponse(
 )
 
 data class GifImage(
-    val downsized: GifPreview
+    val downsized: GifPreview?
 )
 
 data class GifPreview(
-    val url: String,
-    val height: Int,
-    val width: Int
+    val url: String?,
+    val height: Int?,
+    val width: Int?
 )
 
 data class PaginationResponse(
