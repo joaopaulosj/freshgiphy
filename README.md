@@ -6,7 +6,7 @@ An Android study project using the Giphy Api
 # Screenshots:
 <img src="/images/screenshot1.gif" height="400px"/>  <img src="/images/screenshot2.gif" height="400px"/> <img src="/images/screenshot3.gif" height="400px"/>
 
-Download APK: (http://bit.ly/freshgifs-apk)
+Download APK: http://bit.ly/freshgifs-apk
 
 # Features:
 Trending GIFs<br>
