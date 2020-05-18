@@ -18,7 +18,7 @@ import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
 
-class FavouritesFragment : BaseFragment<FavouritesViewModel>() {
+class FavouritesFragment : BaseView<FavouritesViewModel>() {
 
     companion object {
         fun newInstance(): FavouritesFragment {

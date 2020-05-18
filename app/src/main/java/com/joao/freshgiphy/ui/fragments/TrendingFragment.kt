@@ -29,7 +29,7 @@ import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 
 
-class TrendingFragment : BaseFragment<TrendingViewModel>() {
+class TrendingFragment : BaseView<TrendingViewModel>() {
 
     companion object {
         fun newInstance(): TrendingFragment {

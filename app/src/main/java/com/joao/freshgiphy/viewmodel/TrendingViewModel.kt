@@ -36,7 +36,7 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
         .setPageSize(Constants.GIFS_PER_PAGE)
         .build()
 
-    private var gifsLiveData = LivePagedListBuilder<Long, Gif>(trendingDataFactory, pagedListConfig)
+    private val gifsLiveData = LivePagedListBuilder<Long, Gif>(trendingDataFactory, pagedListConfig)
         .setFetchExecutor(executor)
         .build()
 

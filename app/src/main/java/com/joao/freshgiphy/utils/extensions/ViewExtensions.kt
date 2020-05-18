@@ -16,4 +16,5 @@ fun View.hideKeyboard() {
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
+// Method used just to confirm that some block intentionally should do nothing
 fun doNothing() = Unit

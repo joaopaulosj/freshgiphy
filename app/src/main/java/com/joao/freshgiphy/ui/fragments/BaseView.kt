@@ -17,10 +17,10 @@ import com.joao.freshgiphy.viewmodel.BaseViewModel
 
 /*
  * The base class was created to share some properties and behaviours that
- * are common between the project's fragments, such as setting the columns count,
+ * are common between the project's fragment views, such as setting the columns count,
  * toggling favourites, showing loading, empty, error and success status
  */
-abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
+abstract class BaseView<T : BaseViewModel> : Fragment(), GifClickListener {
 
     protected abstract val viewModel: T
 
