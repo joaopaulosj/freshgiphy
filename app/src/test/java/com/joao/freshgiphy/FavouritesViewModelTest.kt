@@ -6,6 +6,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.models.ListStatus
+import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.repositories.GiphyRepository
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import com.nhaarman.mockitokotlin2.spy
@@ -34,6 +36,9 @@ class FavouritesViewModelTest : LifecycleOwner {
     @Mock
     private lateinit var favouritesObserver: Observer<List<Gif>>
 
+    @Mock
+    private lateinit var listStatusObserver: Observer<ListStatus>
+
     private val lifecycle by lazy { LifecycleRegistry(this) }
 
     private lateinit var viewModel: FavouritesViewModel
@@ -48,6 +53,7 @@ class FavouritesViewModelTest : LifecycleOwner {
         testScheduler = TestScheduler()
 
         viewModel = spy(FavouritesViewModel(repository, testScheduler, testScheduler))
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
     }
 
     private fun initMocks() {
@@ -82,7 +88,41 @@ class FavouritesViewModelTest : LifecycleOwner {
         testScheduler.triggerActions()
 
         // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.SUCCESS))
         verify(favouritesObserver).onChanged(gifsListMock)
+    }
+
+    @Test
+    fun `WHEN load favourites and gets error THEN should update status to error`() {
+        // Configuration
+        whenever(repository.getFavourites()).thenReturn(Single.error(Throwable("Error")))
+        viewModel.getFavourites().observeForever(favouritesObserver)
+
+        // Execution
+        viewModel.loadFavourites()
+
+        testScheduler.triggerActions()
+
+        // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.ERROR, "Error"))
+    }
+
+    @Test
+    fun `WHEN load favourites and gets empty list THEN should update status to empty`() {
+        // Configuration
+        whenever(repository.getFavourites()).thenReturn(Single.just(emptyList()))
+        viewModel.getFavourites().observeForever(favouritesObserver)
+
+        // Execution
+        viewModel.loadFavourites()
+
+        testScheduler.triggerActions()
+
+        // Assertion
+        verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
+        verify(listStatusObserver).onChanged(ListStatus(Status.EMPTY))
     }
 
 }

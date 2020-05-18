@@ -82,7 +82,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN do first gifs request and receives data THEN should update status to default`() {
         // Configuration
         whenever(repository.getTrending(0)).thenReturn(Single.just(apiSuccessResponseMock))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.getTrending(0).rxSubscribe(
@@ -101,7 +101,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN do first gifs request and receives no data THEN should update status to empty`() {
         // Configuration
         whenever(repository.getTrending(0)).thenReturn(Single.just(apiEmptyResponseMock))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.getTrending(0).rxSubscribe(
@@ -120,7 +120,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN do first gifs request and receives an api code error THEN should show error`() {
         // Configuration
         whenever(repository.getTrending(0)).thenReturn(Single.just(apiCodeErrorResponseMock))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.getTrending(0).rxSubscribe(
@@ -139,7 +139,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN do first gifs request and receives an request error THEN should show error`() {
         // Configuration
         whenever(repository.getTrending(0)).thenReturn(Single.error(Throwable("Error")))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.getTrending(0).rxSubscribe(
@@ -160,7 +160,7 @@ class TrendingViewModelTest : LifecycleOwner {
         val gif = Gif(id = "id", url = "url", isFavourite = false)
 
         // Execution
-        viewModel.onFavouriteClick(gif)
+        viewModel.onGifClick(gif)
 
         // Assertion
         verify(repository, times(1)).toggleFavourite(gif)
@@ -190,7 +190,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN a search request receives data THEN should update status to default`() {
         // Configuration
         whenever(repository.search("query", 0)).thenReturn(Single.just(apiSuccessResponseMock))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.search("query", 0).rxSubscribe(
@@ -209,7 +209,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN a search request doesnt receive data THEN should update status to empty`() {
         // Configuration
         whenever(repository.search("query", 0)).thenReturn(Single.just(apiEmptyResponseMock))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.search("query", 0).rxSubscribe(
@@ -228,7 +228,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN a search request receives api code error THEN should update status to error`() {
         // Configuration
         whenever(repository.search("query", 0)).thenReturn(Single.just(apiCodeErrorResponseMock))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.search("query", 0).rxSubscribe(
@@ -247,7 +247,7 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN a search request receives request error THEN should update status to error`() {
         // Configuration
         whenever(repository.search("query", 0)).thenReturn(Single.error(Throwable("error")))
-        viewModel.listStatusEvent().observeForever(listStatusObserver)
+        viewModel.listStatusEvent.observeForever(listStatusObserver)
 
         // Execution
         viewModel.search("query", 0).rxSubscribe(
