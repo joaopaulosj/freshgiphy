@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.utils.extensions.doNothing
 import kotlinx.android.synthetic.main.item_gif.view.*
 import kotlin.random.Random
 
@@ -36,20 +37,14 @@ class GifViewHolder(
                 .into(itemGifImg)
 
             itemGifFavAnim.addAnimatorListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {
-                    // Do Nothing
-                }
+                override fun onAnimationRepeat(animation: Animator?) = doNothing()
+
+                override fun onAnimationCancel(animation: Animator?) = doNothing()
+
+                override fun onAnimationStart(animation: Animator?) = doNothing()
 
                 override fun onAnimationEnd(animation: Animator?) {
                     itemGifFavAnim.visibility = View.GONE
-                }
-
-                override fun onAnimationCancel(animation: Animator?) {
-                    // Do Nothing
-                }
-
-                override fun onAnimationStart(animation: Animator?) {
-                    // Do Nothing
                 }
             })
 

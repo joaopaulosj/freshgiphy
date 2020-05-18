@@ -10,6 +10,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.joao.freshgiphy.R
+import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.ui.fragments.FavouritesFragment
 import com.joao.freshgiphy.ui.fragments.TrendingFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -24,8 +25,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTabs() {
-        val fragments = listOf<Fragment>(TrendingFragment(), FavouritesFragment())
-        val tabNames = listOf("TRENDING", "FAVOURITES")
+        val tabNames = listOf(
+            getString(R.string.main_trending_title),
+            getString(R.string.main_favourites_title)
+        )
+
+        val fragments = listOf<Fragment>(
+            TrendingFragment.newInstance(),
+            FavouritesFragment.newInstance()
+        )
 
         val mainColor = ContextCompat.getColor(this, R.color.colorPrimary)
         val secondaryColor = ContextCompat.getColor(this, R.color.colorRed)
@@ -54,5 +62,7 @@ class MainActivity : AppCompatActivity() {
             tab.text = tabNames[position]
         }.attach()
     }
+
+    fun getAppContainer() = (applicationContext as App).appContainer
 
 }

@@ -17,13 +17,21 @@ import com.bumptech.glide.Glide
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
 import com.joao.freshgiphy.ui.adapters.GifClickListener
+import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
 import kotlinx.android.synthetic.main.fragment_favourites.*
 import kotlinx.android.synthetic.main.fragment_favourites.recyclerView
 
 class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.EmptyListListener {
+
+    companion object {
+        fun newInstance(): FavouritesFragment {
+            return FavouritesFragment()
+        }
+    }
 
     private lateinit var viewModel: FavouritesViewModel
 
@@ -31,14 +39,12 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
         FavouritesAdapter(this, this, Glide.with(this))
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_favourites, container, false)
     }
 
     override fun onAttach(context: Context) {
-        val factory = (activity?.application as App).appContainer.favouritesViewModelFactory
+        val factory = (activity as MainActivity).getAppContainer().favouritesViewModelFactory
         viewModel = ViewModelProvider(this, factory).get(FavouritesViewModel::class.java)
         super.onAttach(context)
     }
@@ -50,13 +56,12 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
     }
 
     override fun onFavouriteClicked(gif: Gif) {
-        //TODO strings
         context?.let {
             AlertDialog.Builder(it)
-                .setTitle("Are you sure?")
-                .setMessage("The gif will me removed from your favourites")
-                .setPositiveButton("Remove") { _, _ -> viewModel.onFavouriteClick(gif) }
-                .setNegativeButton("Cancel") { _, _ -> }
+                .setTitle(getString(R.string.dialog_remove_title))
+                .setMessage(getString(R.string.dialog_remove_message))
+                .setPositiveButton(getString(R.string.remove)) { _, _ -> viewModel.onFavouriteClick(gif) }
+                .setNegativeButton(getString(R.string.cancel)) { _, _ -> doNothing() }
                 .show()
         }
     }

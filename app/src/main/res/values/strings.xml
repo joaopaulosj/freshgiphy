@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">FreshGifs</string>
 
-    <!-- MAIN -->
     <string name="retry">Retry</string>
+    <string name="remove">Remove</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="dialog_remove_title">Are you sure?</string>
+    <string name="dialog_remove_message">The gif will me removed from your favourites</string>
+
+    <string name="empty_list">No gifs to show</string>
+
+    <!-- MAIN -->
+    <string name="main_trending_title">TRENDING</string>
+    <string name="main_favourites_title">FAVOURITES</string>
+    <string name="main_search_hint">Search gifs</string>
 </resources>

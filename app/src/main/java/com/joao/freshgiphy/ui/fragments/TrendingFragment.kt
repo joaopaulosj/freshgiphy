@@ -19,9 +19,11 @@ import com.jakewharton.rxbinding.widget.RxTextView
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
+import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.utils.extensions.hideKeyboard
 import com.joao.freshgiphy.utils.extensions.showKeyboard
 import com.joao.freshgiphy.viewmodel.TrendingViewModel
@@ -33,22 +35,25 @@ import java.util.concurrent.TimeUnit
 
 class TrendingFragment : Fragment(), GifClickListener {
 
+    companion object {
+        fun newInstance(): TrendingFragment {
+            return TrendingFragment()
+        }
+    }
+
     private lateinit var viewModel: TrendingViewModel
 
     private val trendingPagedAdapter by lazy {
         TrendingPagedAdapter(this, Glide.with(this))
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_trending, container, false)
     }
 
     override fun onAttach(context: Context) {
-        val factory = (activity?.application as App).appContainer.trendingViewModelFactory
-        viewModel = ViewModelProvider(this, factory).get(TrendingViewModel::class.java) //TODO pass to activity
+        val factory = (activity as MainActivity).getAppContainer().trendingViewModelFactory
+        viewModel = ViewModelProvider(this, factory).get(TrendingViewModel::class.java)
 
         super.onAttach(context)
     }
@@ -108,14 +113,13 @@ class TrendingFragment : Fragment(), GifClickListener {
     }
 
     override fun onFavouriteClicked(gif: Gif) {
-        // TODO strings
         if (gif.isFavourite) {
             context?.let {
                 AlertDialog.Builder(it)
-                    .setTitle("Are you sure?")
-                    .setMessage("The gif will me removed from your favourites")
-                    .setPositiveButton("Remove") { _, _ -> viewModel.onFavouriteClick(gif) }
-                    .setNegativeButton("Cancel") { _, _ -> }
+                    .setTitle(getString(R.string.dialog_remove_title))
+                    .setMessage(getString(R.string.dialog_remove_message))
+                    .setPositiveButton(getString(R.string.remove)) { _, _ -> viewModel.onFavouriteClick(gif) }
+                    .setNegativeButton(getString(R.string.cancel)) { _, _ -> doNothing() }
                     .show()
             }
         } else {

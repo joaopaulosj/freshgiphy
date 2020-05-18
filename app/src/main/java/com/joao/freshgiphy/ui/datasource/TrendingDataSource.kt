@@ -1,13 +1,13 @@
 package com.joao.freshgiphy.ui.datasource
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
-import com.joao.freshgiphy.utils.extensions.singleSubscribe
+import com.joao.freshgiphy.utils.extensions.rxSubscribe
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.models.toGif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.NetworkState
+import com.joao.freshgiphy.utils.extensions.doNothing
 
 class TrendingDataSource(
     private val repository: IGiphyRepository,
@@ -27,7 +27,7 @@ class TrendingDataSource(
             repository.search(querySearch, 0)
         }
 
-        call.singleSubscribe(
+        call.rxSubscribe(
             onSuccess = {
                 if (it.meta.status == 200) {
                     val list = it.data.map { gifResponse -> gifResponse.toGif() }
@@ -59,7 +59,7 @@ class TrendingDataSource(
     }
 
     override fun loadBefore(params: LoadParams<Long>, callback: LoadCallback<Long, Gif>) {
-        // Do Nothing
+        doNothing()
     }
 
     override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Long, Gif>) {
@@ -71,7 +71,7 @@ class TrendingDataSource(
             repository.search(querySearch, params.key.toInt())
         }
 
-        call.singleSubscribe(
+        call.rxSubscribe(
             onSuccess = {
                 if (it.meta.status == 200) {
                     val list = it.data.map { gifResponse -> gifResponse.toGif() }

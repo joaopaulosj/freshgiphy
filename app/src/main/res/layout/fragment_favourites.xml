@@ -25,7 +25,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No gifs to show"
+            android:text="@string/empty_list"
             android:textSize="24sp"
             android:textStyle="bold" />
 

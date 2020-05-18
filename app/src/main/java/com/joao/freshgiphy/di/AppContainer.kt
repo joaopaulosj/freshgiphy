@@ -62,6 +62,6 @@ class AppContainer(private val context: Context) {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
             .create(GiphyService::class.java)
-    } //TODO check recreating
+    }
 
 }

@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.utils.SingleLiveEvent
-import com.joao.freshgiphy.utils.extensions.singleSubscribe
+import com.joao.freshgiphy.utils.extensions.rxSubscribe
 
 class FavouritesViewModel constructor(private val repository: IGiphyRepository) : ViewModel() {
 
@@ -16,7 +16,7 @@ class FavouritesViewModel constructor(private val repository: IGiphyRepository) 
 
     private fun loadFavourites() {
         repository.getFavourites()
-            .singleSubscribe(onSuccess = {
+            .rxSubscribe(onSuccess = {
                 favouritesLiveData.postValue(it)
             }, onError = {
                 //TODO
