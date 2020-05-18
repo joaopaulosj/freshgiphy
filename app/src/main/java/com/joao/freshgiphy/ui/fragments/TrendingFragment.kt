@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -24,7 +23,6 @@ import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.ui.adapters.TrendingPagedAdapter
 import com.joao.freshgiphy.utils.Constants
-import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.utils.extensions.hideKeyboard
 import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.utils.extensions.showKeyboard
@@ -139,12 +137,6 @@ class TrendingFragment : Fragment(), GifClickListener {
         swipeRefresh.isRefreshing = false
     }
 
-    private fun displayError(errorMsg: String) {
-        Snackbar.make(recyclerView, errorMsg, Snackbar.LENGTH_INDEFINITE)
-            .setAction(R.string.retry) { viewModel.refresh() }
-            .show()
-    }
-
     private fun updateListStatus(listStatus: ListStatus) {
         when (listStatus.status) {
             Status.LOADING -> {
@@ -163,12 +155,18 @@ class TrendingFragment : Fragment(), GifClickListener {
                 emptyView.visibility = View.VISIBLE
                 recyclerView.visibility = View.GONE
             }
-            Status.DEFAULT -> {
+            Status.SUCCESS -> {
                 loadingAnim.visibility = View.GONE
                 emptyView.visibility = View.GONE
                 recyclerView.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun displayError(errorMsg: String) {
+        Snackbar.make(recyclerView, errorMsg, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.retry) { viewModel.refresh() }
+            .show()
     }
 
 }

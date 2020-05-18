@@ -94,7 +94,7 @@ class TrendingViewModelTest : LifecycleOwner {
 
         // Assertion
         verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
-        verify(listStatusObserver).onChanged(ListStatus(Status.DEFAULT))
+        verify(listStatusObserver).onChanged(ListStatus(Status.SUCCESS))
     }
 
     @Test
@@ -202,7 +202,7 @@ class TrendingViewModelTest : LifecycleOwner {
 
         // Assertion
         verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
-        verify(listStatusObserver).onChanged(ListStatus(Status.DEFAULT))
+        verify(listStatusObserver).onChanged(ListStatus(Status.SUCCESS))
     }
 
     @Test

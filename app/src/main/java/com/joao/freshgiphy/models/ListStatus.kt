@@ -1,7 +1,7 @@
 package com.joao.freshgiphy.models
 
 enum class Status {
-    DEFAULT, LOADING, EMPTY, ERROR
+    SUCCESS, LOADING, EMPTY, ERROR
 }
 
 data class ListStatus(

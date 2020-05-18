@@ -1,32 +1,33 @@
 package com.joao.freshgiphy.ui.fragments
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 
 import com.joao.freshgiphy.R
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.models.ListStatus
+import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.utils.Constants
-import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.utils.extensions.removeDialog
 import com.joao.freshgiphy.viewmodel.FavouritesViewModel
-import kotlinx.android.synthetic.main.fragment_favourites.*
+import kotlinx.android.synthetic.main.fragment_favourites.emptyView
 import kotlinx.android.synthetic.main.fragment_favourites.recyclerView
 
-class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.EmptyListListener {
+class FavouritesFragment : Fragment(), GifClickListener {
 
     companion object {
         fun newInstance(): FavouritesFragment {
@@ -39,7 +40,7 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
     private var columnCount = Constants.FAVOURITE_COLUMNS_PORTRAIT
 
     private val favouritesAdapter by lazy {
-        FavouritesAdapter(this, this, Glide.with(this))
+        FavouritesAdapter(this, Glide.with(this))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,13 +51,10 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
             Constants.FAVOURITE_COLUMNS_LANDSCAPE
         }
 
-        return inflater.inflate(R.layout.fragment_favourites, container, false)
-    }
-
-    override fun onAttach(context: Context) {
         val factory = (activity as MainActivity).getAppContainer().favouritesViewModelFactory
         viewModel = ViewModelProvider(this, factory).get(FavouritesViewModel::class.java)
-        super.onAttach(context)
+
+        return inflater.inflate(R.layout.fragment_favourites, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -84,19 +82,42 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
 
     private fun setupObservers() {
         viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
+        viewModel.getListStatus().observe(this, Observer { updateListStatus(it) })
         viewModel.onGifChanged().observe(this, Observer {
             if (it.isFavourite) recyclerView.scrollToPosition(0)
             favouritesAdapter.updateItem(it)
         })
     }
 
-    override fun isListEmpty(isEmpty: Boolean) {
-        if (isEmpty) {
-            recyclerView.visibility = View.GONE
-            emptyView.visibility = View.VISIBLE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            emptyView.visibility = View.GONE
+    private fun updateListStatus(listStatus: ListStatus) {
+        when (listStatus.status) {
+            Status.LOADING -> {
+//                loadingAnim.visibility = View.VISIBLE
+                emptyView.visibility = View.GONE
+                recyclerView.visibility = View.GONE
+            }
+            Status.EMPTY -> {
+//                loadingAnim.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            }
+            Status.ERROR -> {
+                displayError(listStatus.message ?: getString(R.string.unknown_error))
+//                loadingAnim.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            }
+            Status.SUCCESS -> {
+//                loadingAnim.visibility = View.GONE
+                emptyView.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+            }
         }
+    }
+
+    private fun displayError(errorMsg: String) {
+        Snackbar.make(recyclerView, errorMsg, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.retry) { viewModel.loadFavourites() }
+            .show()
     }
 }

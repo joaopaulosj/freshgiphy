@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.joao.freshgiphy.models.Gif
+import com.joao.freshgiphy.models.ListStatus
+import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.utils.SingleLiveEvent
 import com.joao.freshgiphy.utils.extensions.rxSubscribe
@@ -18,24 +20,35 @@ class FavouritesViewModel constructor(
 ) : ViewModel() {
 
     private val favouritesLiveData = MutableLiveData<List<Gif>>()
+    private val listStatusEvent = SingleLiveEvent<ListStatus>()
 
     fun loadFavourites() {
+        listStatusEvent.postValue(ListStatus(Status.LOADING))
+
         repository.getFavourites()
             .rxSubscribe(
                 subscribeOnScheduler = processScheduler,
                 observeOnScheduler = androidScheduler,
                 onSuccess = {
+                    if (it.isNotEmpty()) {
+                        listStatusEvent.postValue(ListStatus(Status.SUCCESS))
+                    } else {
+                        listStatusEvent.postValue(ListStatus(Status.EMPTY))
+                    }
+
                     favouritesLiveData.postValue(it)
+                }, onError = {
+                    listStatusEvent.postValue(ListStatus(Status.ERROR, it.message))
                 })
     }
 
     fun getFavourites(): LiveData<List<Gif>> = favouritesLiveData
 
+    fun getListStatus(): SingleLiveEvent<ListStatus> = listStatusEvent
+
     fun onGifChanged(): SingleLiveEvent<Gif> = repository.favouriteChangeEvent
 
-    fun onFavouriteClick(gif: Gif) {
-        repository.toggleFavourite(gif)
-    }
+    fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
 }
 
 class FavouritesViewModelFactory(
