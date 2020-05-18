@@ -28,7 +28,9 @@ class FavouritesFragment : BaseView<FavouritesViewModel>() {
 
     override lateinit var viewModel: FavouritesViewModel
 
-    private val favouritesAdapter by lazy { FavouritesAdapter(this, Glide.with(this)) }
+    private val favouritesAdapter by lazy {
+        FavouritesAdapter(this, this, Glide.with(this))
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val factory = (activity as MainActivity).getAppContainer().favouritesViewModelFactory

@@ -6,10 +6,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.R
+import com.joao.freshgiphy.models.ListStatus
+import com.joao.freshgiphy.models.Status
 
 
 class FavouritesAdapter(
-    private val listener: GifClickListener,
+    private val clickListener: GifClickListener,
+    private val statusListener: StatusListener,
     private val glide: RequestManager
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -33,11 +36,17 @@ class FavouritesAdapter(
             favouriteGifs.removeAt(position)
             notifyItemRemoved(position)
         }
+
+        if (favouriteGifs.isEmpty()) {
+            statusListener.onStatusChanged(ListStatus(Status.EMPTY))
+        } else {
+            statusListener.onStatusChanged(ListStatus(Status.SUCCESS))
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_gif, parent, false)
-        return GifViewHolder(view, listener, glide)
+        return GifViewHolder(view, clickListener, glide)
     }
 
     override fun getItemCount() = favouriteGifs.size
@@ -46,5 +55,9 @@ class FavouritesAdapter(
         if (holder is GifViewHolder) {
             holder.bind(favouriteGifs[position])
         }
+    }
+
+    interface StatusListener {
+        fun onStatusChanged(status: ListStatus)
     }
 }

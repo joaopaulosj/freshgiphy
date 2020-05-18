@@ -10,6 +10,7 @@ import com.joao.freshgiphy.R
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.models.ListStatus
 import com.joao.freshgiphy.models.Status
+import com.joao.freshgiphy.ui.adapters.FavouritesAdapter.StatusListener
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.doNothing
@@ -20,7 +21,7 @@ import com.joao.freshgiphy.viewmodel.BaseViewModel
  * are common between the project's fragment views, such as setting the columns count,
  * toggling favourites, showing loading, empty, error and success status
  */
-abstract class BaseView<T : BaseViewModel> : Fragment(), GifClickListener {
+abstract class BaseView<T : BaseViewModel> : Fragment(), GifClickListener, StatusListener {
 
     protected abstract val viewModel: T
 
@@ -73,6 +74,8 @@ abstract class BaseView<T : BaseViewModel> : Fragment(), GifClickListener {
     protected abstract fun displayError(errorMsg: String)
 
     protected abstract fun onGifChanged(gif: Gif)
+
+    override fun onStatusChanged(status: ListStatus) = updateListStatus(status)
 
     private fun updateListStatus(listStatus: ListStatus) {
         when (listStatus.status) {
