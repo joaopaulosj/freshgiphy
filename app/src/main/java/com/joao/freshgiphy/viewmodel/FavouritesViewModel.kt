@@ -18,8 +18,6 @@ class FavouritesViewModel constructor(private val repository: IGiphyRepository) 
         repository.getFavourites()
             .rxSubscribe(onSuccess = {
                 favouritesLiveData.postValue(it)
-            }, onError = {
-                //TODO
             })
     }
 

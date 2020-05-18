@@ -5,9 +5,9 @@ import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.api.responses.ApiResponse
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.utils.SingleLiveEvent
-import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
 class GiphyRepository constructor(
@@ -82,21 +82,27 @@ class GiphyRepository constructor(
         return errorEvent
     }
 
-    //TODO warning
     override fun toggleFavourite(gif: Gif) {
         gif.isFavourite = !gif.isFavourite
 
-        Completable.complete()
+        Single.just(gif)
             .subscribeOn(Schedulers.io())
-            .subscribe {
-                if (gif.isFavourite) {
-                    db.userDao().insert(gif)
-                } else {
-                    db.userDao().delete(gif.id)
+            .subscribe(object : DisposableSingleObserver<Gif>() {
+                override fun onSuccess(gif: Gif) {
+                    if (gif.isFavourite) {
+                        db.userDao().insert(gif)
+                    } else {
+                        db.userDao().delete(gif.id)
+                    }
+
+                    onFavouriteGifChanged.postValue(gif)
+                    onGifChanged.postValue(gif)
+                    dispose()
                 }
 
-                onFavouriteGifChanged.postValue(gif)
-                onGifChanged.postValue(gif)
-            }
+                override fun onError(e: Throwable) {
+                    dispose()
+                }
+            })
     }
 }
