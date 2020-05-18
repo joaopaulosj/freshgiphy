@@ -39,20 +39,16 @@ class TrendingViewModelTest : LifecycleOwner {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
-    private val lifecycle by lazy { LifecycleRegistry(this) }
-
-    private lateinit var viewModel: TrendingViewModel
-
     @Mock
     private lateinit var repository: GiphyRepository
 
     @Mock
     private lateinit var listStatusObserver: Observer<ListStatus>
 
-    private lateinit var trendingDataFactory: TrendingDataFactory
+    private val lifecycle by lazy { LifecycleRegistry(this) }
 
+    private lateinit var viewModel: TrendingViewModel
     private lateinit var testScheduler: TestScheduler
-
     private lateinit var apiSuccessResponseMock: ApiResponse
     private lateinit var apiEmptyResponseMock: ApiResponse
     private lateinit var apiCodeErrorResponseMock: ApiResponse
@@ -62,9 +58,9 @@ class TrendingViewModelTest : LifecycleOwner {
         initMocks()
         MockitoAnnotations.initMocks(this)
 
-        testScheduler = TestScheduler(1, TimeUnit.MILLISECONDS)
+        testScheduler = TestScheduler()
 
-        viewModel = spy(TrendingViewModel(repository, testScheduler, testScheduler))
+        viewModel = spy(TrendingViewModel(repository))
         viewModel.trendingDataFactory = TrendingDataFactory(viewModel)
     }
 
@@ -163,11 +159,6 @@ class TrendingViewModelTest : LifecycleOwner {
     fun `WHEN a gif is clicked THEN should call toggle favourite in repository`() {
         // Configuration
         val gif = Gif(id = "id", url = "url", isFavourite = false)
-        whenever(repository.toggleFavourite(gif)).thenReturn(
-            Single.just(gif.apply { isFavourite = !isFavourite })
-        )
-
-        testScheduler.triggerActions()
 
         // Execution
         viewModel.onFavouriteClick(gif)
@@ -199,7 +190,7 @@ class TrendingViewModelTest : LifecycleOwner {
     @Test
     fun `WHEN a search request receives data THEN should update status to default`() {
         // Configuration
-        whenever(repository.search("query",0)).thenReturn(Single.just(apiSuccessResponseMock))
+        whenever(repository.search("query", 0)).thenReturn(Single.just(apiSuccessResponseMock))
         viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
@@ -218,7 +209,7 @@ class TrendingViewModelTest : LifecycleOwner {
     @Test
     fun `WHEN a search request doesnt receive data THEN should update status to empty`() {
         // Configuration
-        whenever(repository.search("query",0)).thenReturn(Single.just(apiEmptyResponseMock))
+        whenever(repository.search("query", 0)).thenReturn(Single.just(apiEmptyResponseMock))
         viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
@@ -237,7 +228,7 @@ class TrendingViewModelTest : LifecycleOwner {
     @Test
     fun `WHEN a search request receives api code error THEN should update status to error`() {
         // Configuration
-        whenever(repository.search("query",0)).thenReturn(Single.just(apiCodeErrorResponseMock))
+        whenever(repository.search("query", 0)).thenReturn(Single.just(apiCodeErrorResponseMock))
         viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution
@@ -256,7 +247,7 @@ class TrendingViewModelTest : LifecycleOwner {
     @Test
     fun `WHEN a search request receives request error THEN should update status to error`() {
         // Configuration
-        whenever(repository.search("query",0)).thenReturn(Single.error(Throwable("error")))
+        whenever(repository.search("query", 0)).thenReturn(Single.error(Throwable("error")))
         viewModel.listStatusEvent().observeForever(listStatusObserver)
 
         // Execution

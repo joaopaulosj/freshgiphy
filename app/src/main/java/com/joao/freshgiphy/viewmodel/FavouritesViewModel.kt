@@ -9,13 +9,17 @@ import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.utils.SingleLiveEvent
 import com.joao.freshgiphy.utils.extensions.rxSubscribe
+import io.reactivex.Scheduler
 
-class FavouritesViewModel constructor(private val repository: IGiphyRepository) : ViewModel() {
+class FavouritesViewModel constructor(
+    private val repository: IGiphyRepository,
+    private val processScheduler: Scheduler,
+    private val androidScheduler: Scheduler
+) : ViewModel() {
 
     private val onGifChangedLiveData = MediatorLiveData<Gif>()
 
     private val favouritesLiveData = MutableLiveData<List<Gif>>()
-        .also { loadFavourites() }
 
     init {
         onGifChangedLiveData.addSource(repository.favouriteChangeEvent) {
@@ -23,11 +27,14 @@ class FavouritesViewModel constructor(private val repository: IGiphyRepository) 
         }
     }
 
-    private fun loadFavourites() {
+    fun loadFavourites() {
         repository.getFavourites()
-            .rxSubscribe(onSuccess = {
-                favouritesLiveData.postValue(it)
-            })
+            .rxSubscribe(
+                subscribeOnScheduler = processScheduler,
+                observeOnScheduler = androidScheduler,
+                onSuccess = {
+                    favouritesLiveData.postValue(it)
+                })
     }
 
     fun getFavourites(): LiveData<List<Gif>> = favouritesLiveData
@@ -40,9 +47,11 @@ class FavouritesViewModel constructor(private val repository: IGiphyRepository) 
 }
 
 class FavouritesViewModelFactory(
-    private val repository: IGiphyRepository
+    private val repository: IGiphyRepository,
+    private val processScheduler: Scheduler,
+    private val androidScheduler: Scheduler
 ) : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return FavouritesViewModel(repository) as T
+        return FavouritesViewModel(repository, processScheduler, androidScheduler) as T
     }
 }

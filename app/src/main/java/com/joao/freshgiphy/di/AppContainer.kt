@@ -10,6 +10,8 @@ import com.joao.freshgiphy.repositories.GiphyRepository
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.viewmodel.FavouritesViewModelFactory
 import com.joao.freshgiphy.viewmodel.TrendingViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -26,7 +28,7 @@ class AppContainer(private val context: Context) {
     }
 
     val favouritesViewModelFactory by lazy {
-        FavouritesViewModelFactory(giphyRepository)
+        FavouritesViewModelFactory(giphyRepository, Schedulers.io(), AndroidSchedulers.mainThread())
     }
 
     //Repository

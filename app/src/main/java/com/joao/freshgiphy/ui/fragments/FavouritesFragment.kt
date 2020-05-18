@@ -51,6 +51,8 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
         super.onViewCreated(view, savedInstanceState)
         setupViews()
         setupObservers()
+
+        viewModel.loadFavourites()
     }
 
     override fun onFavouriteClicked(gif: Gif) {
