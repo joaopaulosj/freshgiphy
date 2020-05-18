@@ -18,9 +18,9 @@ class GifViewHolder(
 
     private val colors = listOf(
         R.color.colorGreenLight,
-        R.color.colorCyan,
         R.color.colorTeal,
         R.color.colorDeepPurple,
+        R.color.colorAmber,
         R.color.colorYellow,
         R.color.colorPink
     )
@@ -48,6 +48,7 @@ class GifViewHolder(
             })
 
             itemGifFavImg.progress = if (item.isFavourite) 1f else 0f
+
             itemGifFavImg.setOnClickListener {
                 if (!item.isFavourite) {
                     itemGifFavAnim.visibility = View.VISIBLE

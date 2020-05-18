@@ -15,6 +15,11 @@ import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.viewmodel.BaseViewModel
 
+/*
+ * The base class was created to share some properties and behaviours that
+ * are common between the project's fragments, such as setting the columns count,
+ * toggling favourites, showing loading, empty, error and success status
+ */
 abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
 
     protected abstract val viewModel: T
@@ -51,6 +56,8 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
 
     override fun onGifClick(gif: Gif) {
         if (gif.isFavourite) {
+            // If user is removing gif from favourites,
+            // only call viewModel after dialog is confirmed
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.dialog_remove_title))
                 .setMessage(getString(R.string.dialog_remove_message))
@@ -58,6 +65,7 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
                 .setNegativeButton(getString(R.string.cancel)) { _, _ -> doNothing() }
                 .show()
         } else {
+            // It doesn't need confirmation to add to favourites
             viewModel.onGifClick(gif)
         }
     }

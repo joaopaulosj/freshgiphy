@@ -16,7 +16,6 @@ import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.ui.datasource.TrendingDataFactory
 import com.joao.freshgiphy.ui.datasource.TrendingDataSource
 import com.joao.freshgiphy.utils.Constants
-import com.joao.freshgiphy.utils.SingleLiveEvent
 import io.reactivex.Single
 import java.util.concurrent.Executors
 
@@ -30,10 +29,7 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
     var trendingDataFactory = TrendingDataFactory(this)
 
     private val networkState = Transformations.switchMap<TrendingDataSource, NetworkState>(
-        TrendingDataFactory(this).mutableLiveData
-    ) {
-        it.networkState
-    }
+        TrendingDataFactory(this).dataSourceLiveData()) { it.networkState }
 
     private val pagedListConfig = PagedList.Config.Builder()
         .setEnablePlaceholders(false)
@@ -85,12 +81,12 @@ class TrendingViewModel constructor(private val repository: IGiphyRepository) : 
 
     @VisibleForTesting
     fun updateQueryOnDataFactory(query: String) {
-        trendingDataFactory.searchQuery = query
+        trendingDataFactory.updateQuery(query)
     }
 
     @VisibleForTesting
     fun invalidateDataFactory() {
-        trendingDataFactory.mutableLiveData.value?.invalidate()
+        trendingDataFactory.dataSourceLiveData().value?.invalidate()
     }
 
 }

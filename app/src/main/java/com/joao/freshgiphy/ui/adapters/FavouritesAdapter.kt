@@ -13,24 +13,24 @@ class FavouritesAdapter(
     private val glide: RequestManager
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var gifList = mutableListOf<Gif>()
+    private var favouriteGifs = mutableListOf<Gif>()
 
     fun setItems(items: List<Gif>) {
-        gifList.clear()
-        gifList.addAll(items)
+        favouriteGifs.clear()
+        favouriteGifs.addAll(items)
         notifyDataSetChanged()
     }
 
     fun updateItem(item: Gif) {
         if (item.isFavourite) {
-            gifList.add(0, item)
+            favouriteGifs.add(0, item)
             notifyItemInserted(0)
         } else {
-            val position = gifList.indexOfFirst { it.id == item.id }
+            val position = favouriteGifs.indexOfFirst { it.id == item.id }
 
             if (position == -1) return
 
-            gifList.removeAt(position)
+            favouriteGifs.removeAt(position)
             notifyItemRemoved(position)
         }
     }
@@ -40,11 +40,11 @@ class FavouritesAdapter(
         return GifViewHolder(view, listener, glide)
     }
 
-    override fun getItemCount() = gifList.size
+    override fun getItemCount() = favouriteGifs.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is GifViewHolder) {
-            holder.bind(gifList[position])
+            holder.bind(favouriteGifs[position])
         }
     }
 }

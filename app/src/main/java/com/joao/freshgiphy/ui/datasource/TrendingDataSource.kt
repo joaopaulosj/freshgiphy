@@ -40,21 +40,11 @@ class TrendingDataSource(
                     initialLoading.postValue(NetworkState.LOADED)
                     networkState.postValue(NetworkState.LOADED)
                 } else {
-                    networkState.postValue(
-                        NetworkState(
-                            (NetworkState.Status.FAILED),
-                            it.meta.msg
-                        )
-                    )
+                    networkState.postValue(NetworkState((NetworkState.Status.FAILED), it.meta.msg))
                 }
             },
             onError = {
-                networkState.postValue(
-                    NetworkState(
-                        (NetworkState.Status.FAILED),
-                        it.message
-                    )
-                )
+                networkState.postValue(NetworkState((NetworkState.Status.FAILED), it.message))
             }
         )
     }
@@ -85,26 +75,15 @@ class TrendingDataSource(
                     if (list.isNotEmpty()) {
                         callback.onResult(list, nextKey?.toLong())
                     }
-
-
+                    
                     initialLoading.postValue(NetworkState.LOADED)
                     networkState.postValue(NetworkState.LOADED)
                 } else {
-                    networkState.postValue(
-                        NetworkState(
-                            (NetworkState.Status.FAILED),
-                            it.meta.msg
-                        )
-                    )
+                    networkState.postValue(NetworkState((NetworkState.Status.FAILED), it.meta.msg))
                 }
             },
             onError = {
-                networkState.postValue(
-                    NetworkState(
-                        (NetworkState.Status.FAILED),
-                        it.message
-                    )
-                )
+                networkState.postValue(NetworkState((NetworkState.Status.FAILED), it.message))
             }
         )
     }
