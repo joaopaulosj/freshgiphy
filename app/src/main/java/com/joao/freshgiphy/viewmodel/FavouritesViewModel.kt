@@ -1,6 +1,7 @@
 package com.joao.freshgiphy.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -11,8 +12,16 @@ import com.joao.freshgiphy.utils.extensions.rxSubscribe
 
 class FavouritesViewModel constructor(private val repository: IGiphyRepository) : ViewModel() {
 
+    private val onGifChangedLiveData = MediatorLiveData<Gif>()
+
     private val favouritesLiveData = MutableLiveData<List<Gif>>()
         .also { loadFavourites() }
+
+    init {
+        onGifChangedLiveData.addSource(repository.favouriteChangeEvent) {
+            onGifChangedLiveData.postValue(it)
+        }
+    }
 
     private fun loadFavourites() {
         repository.getFavourites()
@@ -23,9 +32,14 @@ class FavouritesViewModel constructor(private val repository: IGiphyRepository) 
 
     fun getFavourites(): LiveData<List<Gif>> = favouritesLiveData
 
-    fun onFavouriteGifChanged(): SingleLiveEvent<Gif> = repository.onFavouriteGifChanged()
+    fun onGifChanged(): MediatorLiveData<Gif> = onGifChangedLiveData
 
-    fun onFavouriteClick(gif: Gif) = repository.toggleFavourite(gif)
+    fun onFavouriteClick(gif: Gif) {
+        repository.toggleFavourite(gif)
+            .rxSubscribe(onSuccess = {
+                onGifChangedLiveData.postValue(it)
+            })
+    }
 }
 
 class FavouritesViewModelFactory(

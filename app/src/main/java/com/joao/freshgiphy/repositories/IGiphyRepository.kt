@@ -7,11 +7,10 @@ import com.joao.freshgiphy.utils.SingleLiveEvent
 import io.reactivex.Single
 
 interface IGiphyRepository {
+    val trendingChangeEvent: SingleLiveEvent<Gif>
+    val favouriteChangeEvent: SingleLiveEvent<Gif>
     fun search(query: String, offset: Int): Single<ApiResponse>
     fun getTrending(offset: Int): Single<ApiResponse>
     fun getFavourites(): Single<List<Gif>>
-    fun toggleFavourite(gif: Gif)
-    fun onTrendingGifChanged(): SingleLiveEvent<Gif>
-    fun onFavouriteGifChanged(): SingleLiveEvent<Gif>
-    fun listStatusEvent(): SingleLiveEvent<ListStatus>
+    fun toggleFavourite(gif: Gif): Single<Gif>
 }

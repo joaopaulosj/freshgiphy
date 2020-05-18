@@ -4,30 +4,23 @@ import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.api.responses.ApiResponse
 import com.joao.freshgiphy.models.Gif
-import com.joao.freshgiphy.models.ListStatus
-import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.utils.SingleLiveEvent
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
 
 class GiphyRepository constructor(
     private val service: GiphyService,
     private val db: GifDatabase
 ) : IGiphyRepository {
 
-    private val onGifChanged = SingleLiveEvent<Gif>()
-    private val onFavouriteGifChanged = SingleLiveEvent<Gif>()
-    private val listStatusEvent = SingleLiveEvent<ListStatus>()
+    override val favouriteChangeEvent = SingleLiveEvent<Gif>()
+    override val trendingChangeEvent = SingleLiveEvent<Gif>()
 
     override fun getTrending(offset: Int): Single<ApiResponse> {
-        if (offset == 0) listStatusEvent.postValue(ListStatus(Status.LOADING))
         return doRequest(service.getTrending(offset))
     }
 
     override fun search(query: String, offset: Int): Single<ApiResponse> {
-        if (offset == 0) listStatusEvent.postValue(ListStatus(Status.LOADING))
         return doRequest(service.search(query, offset))
     }
 
@@ -38,16 +31,7 @@ class GiphyRepository constructor(
             BiFunction<ApiResponse, List<Gif>, ApiResponse> { fromApi, fromDb ->
                 return@BiFunction setFavourites(fromApi, fromDb)
             }
-        ).doOnSuccess {
-            when {
-                it.meta.status != 200 -> listStatusEvent.postValue(ListStatus(Status.ERROR, it.meta.msg))
-                it.data.isEmpty() -> listStatusEvent.postValue(ListStatus(Status.EMPTY))
-                else -> listStatusEvent.postValue(ListStatus(Status.DEFAULT))
-            }
-        }.doOnError {
-            listStatusEvent.postValue(ListStatus(Status.ERROR))
-            listStatusEvent.postValue(ListStatus(Status.ERROR, it.message))
-        }
+        )
     }
 
     private fun setFavourites(fromApi: ApiResponse, fromDb: List<Gif>): ApiResponse {
@@ -60,33 +44,29 @@ class GiphyRepository constructor(
 
     override fun getFavourites() = db.userDao().getAll()
 
-    override fun onTrendingGifChanged() = onGifChanged
+    override fun toggleFavourite(gif: Gif): Single<Gif> {
+        return Single.create { emitter ->
+            val thread = Thread(
+                Runnable {
+                    try {
+                        gif.isFavourite = !gif.isFavourite
 
-    override fun onFavouriteGifChanged() = onFavouriteGifChanged
+                        if (gif.isFavourite) {
+                            db.userDao().insert(gif)
+                        } else {
+                            db.userDao().delete(gif.id)
+                        }
 
-    override fun listStatusEvent() = listStatusEvent
-
-    override fun toggleFavourite(gif: Gif) {
-        gif.isFavourite = !gif.isFavourite
-
-        Single.just(gif)
-            .subscribeOn(Schedulers.io())
-            .subscribe(object : DisposableSingleObserver<Gif>() {
-                override fun onSuccess(gif: Gif) {
-                    if (gif.isFavourite) {
-                        db.userDao().insert(gif)
-                    } else {
-                        db.userDao().delete(gif.id)
+                        favouriteChangeEvent.postValue(gif)
+                        trendingChangeEvent.postValue(gif)
+                        emitter.onSuccess(gif)
+                    } catch (e: Exception) {
+                        emitter.onError(e)
                     }
-
-                    onFavouriteGifChanged.postValue(gif)
-                    onGifChanged.postValue(gif)
-                    dispose()
                 }
+            )
 
-                override fun onError(e: Throwable) {
-                    dispose()
-                }
-            })
+            thread.start()
+        }
     }
 }

@@ -9,8 +9,8 @@ data class Gif(
     @PrimaryKey(autoGenerate = true) val dbId: Long? = null,
     val id: String,
     val url: String,
-    val height: Int,
-    val width: Int,
+    val height: Int = 0,
+    val width: Int = 0,
     var isFavourite: Boolean = false
 )
 

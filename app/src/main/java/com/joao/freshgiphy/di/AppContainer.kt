@@ -21,7 +21,7 @@ class AppContainer(private val context: Context) {
 
     //ViewModels
     val trendingViewModelFactory by lazy {
-        TrendingViewModelFactory(giphyRepository, gifDataFactory)
+        TrendingViewModelFactory(giphyRepository)
     }
 
     val favouritesViewModelFactory by lazy {
@@ -32,9 +32,6 @@ class AppContainer(private val context: Context) {
     private val giphyRepository: IGiphyRepository by lazy {
         GiphyRepository(giphyService, localDb)
     }
-
-    //Data Source
-    private val gifDataFactory: TrendingDataFactory by lazy { TrendingDataFactory(giphyRepository) }
 
     //Local
     private val localDb: GifDatabase by lazy {

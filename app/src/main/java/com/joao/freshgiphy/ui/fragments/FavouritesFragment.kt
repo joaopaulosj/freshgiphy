@@ -1,7 +1,6 @@
 package com.joao.freshgiphy.ui.fragments
 
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
 
 import com.joao.freshgiphy.R
-import com.joao.freshgiphy.di.App
 import com.joao.freshgiphy.models.Gif
 import com.joao.freshgiphy.ui.activities.MainActivity
 import com.joao.freshgiphy.ui.adapters.FavouritesAdapter
@@ -79,7 +77,10 @@ class FavouritesFragment : Fragment(), GifClickListener, FavouritesAdapter.Empty
 
     private fun setupObservers() {
         viewModel.getFavourites().observe(this, Observer { favouritesAdapter.setItems(it) })
-        viewModel.onFavouriteGifChanged().observe(this, Observer { favouritesAdapter.updateItem(it) })
+        viewModel.onGifChanged().observe(this, Observer {
+            if (it.isFavourite) recyclerView.scrollToPosition(0)
+            favouritesAdapter.updateItem(it)
+        })
     }
 
     override fun isListEmpty(isEmpty: Boolean) {

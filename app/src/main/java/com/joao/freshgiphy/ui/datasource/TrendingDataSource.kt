@@ -8,9 +8,10 @@ import com.joao.freshgiphy.models.toGif
 import com.joao.freshgiphy.repositories.IGiphyRepository
 import com.joao.freshgiphy.ui.NetworkState
 import com.joao.freshgiphy.utils.extensions.doNothing
+import com.joao.freshgiphy.viewmodel.TrendingViewModel
 
 class TrendingDataSource(
-    private val repository: IGiphyRepository,
+    private val viewModel: TrendingViewModel,
     private val querySearch: String
 ) : PageKeyedDataSource<Long, Gif>() {
 
@@ -22,9 +23,9 @@ class TrendingDataSource(
         networkState.postValue(NetworkState.LOADING)
 
         val call = if (querySearch.isBlank()) {
-            repository.getTrending(0)
+            viewModel.getTrending(0)
         } else {
-            repository.search(querySearch, 0)
+            viewModel.search(querySearch, 0)
         }
 
         call.rxSubscribe(
@@ -66,9 +67,9 @@ class TrendingDataSource(
         networkState.postValue(NetworkState.LOADING)
 
         val call = if (querySearch.isBlank()) {
-            repository.getTrending(params.key.toInt())
+            viewModel.getTrending(params.key.toInt())
         } else {
-            repository.search(querySearch, params.key.toInt())
+            viewModel.search(querySearch, params.key.toInt())
         }
 
         call.rxSubscribe(
