@@ -9,6 +9,7 @@ import io.reactivex.Single
 interface IGiphyRepository {
     val trendingChangeEvent: SingleLiveEvent<Gif>
     val favouriteChangeEvent: SingleLiveEvent<Gif>
+
     fun search(query: String, offset: Int): Single<ApiResponse>
     fun getTrending(offset: Int): Single<ApiResponse>
     fun getFavourites(): Single<List<Gif>>

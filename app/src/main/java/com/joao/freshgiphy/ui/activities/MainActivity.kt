@@ -1,7 +1,6 @@
 package com.joao.freshgiphy.ui.activities
 
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
@@ -25,30 +24,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTabs() {
-        val tabNames = listOf(
-            getString(R.string.main_trending_title),
-            getString(R.string.main_favourites_title)
-        )
+        val tabNames = listOf(getString(R.string.main_trending_title), getString(R.string.main_favourites_title))
+        val fragments = listOf<Fragment>(TrendingFragment.newInstance(), FavouritesFragment.newInstance())
 
-        val fragments = listOf<Fragment>(
-            TrendingFragment.newInstance(),
-            FavouritesFragment.newInstance()
-        )
+        val primaryColor = ContextCompat.getColor(this, R.color.colorPrimary)
+        val secondaryColor = ContextCompat.getColor(this, R.color.colorSecondary)
 
-        val mainColor = ContextCompat.getColor(this, R.color.colorPrimary)
-        val secondaryColor = ContextCompat.getColor(this, R.color.colorRed)
-
+        // Change background between primary to secondary colors as the tabs are swiped
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels)
 
-                if (positionOffset > 0) {
-                    secondaryBgView.alpha = positionOffset
-                    window.statusBarColor = ColorUtils.blendARGB(mainColor, secondaryColor, positionOffset)
-                } else {
-                    secondaryBgView.alpha = position.toFloat()
-                    window.statusBarColor = ColorUtils.blendARGB(mainColor, secondaryColor, position.toFloat())
-                }
+                val progress = if (positionOffset > 0) positionOffset else position.toFloat()
+
+                secondaryBgView.alpha = progress
+                window.statusBarColor = ColorUtils.blendARGB(primaryColor, secondaryColor, progress)
             }
         })
 

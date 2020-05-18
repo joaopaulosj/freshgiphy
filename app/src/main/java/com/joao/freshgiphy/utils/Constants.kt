@@ -1,6 +1,7 @@
 package com.joao.freshgiphy.utils
 
 object Constants {
+    const val DATABASE_NAME = "gif-database"
     const val GIFS_PER_PAGE = 25
     const val EDIT_TEXT_DEBOUNCE_TIME = 700L
     const val TRENDING_COLUMNS_PORTRAIT = 1

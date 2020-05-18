@@ -9,8 +9,6 @@ data class ApiResponse(
 data class GifResponse(
     val id: String,
     val url: String,
-    val thumbnail: String = "",
-    val title: String = "",
     val images: GifImage,
     var isFavourite: Boolean = false
 )

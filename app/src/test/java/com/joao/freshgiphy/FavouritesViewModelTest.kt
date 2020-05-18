@@ -123,6 +123,7 @@ class FavouritesViewModelTest : LifecycleOwner {
         // Assertion
         verify(listStatusObserver).onChanged(ListStatus(Status.LOADING))
         verify(listStatusObserver).onChanged(ListStatus(Status.EMPTY))
+        verify(favouritesObserver).onChanged(emptyList())
     }
 
 }

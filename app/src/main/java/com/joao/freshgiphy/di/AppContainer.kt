@@ -8,6 +8,7 @@ import com.joao.freshgiphy.api.GifDatabase
 import com.joao.freshgiphy.api.GiphyService
 import com.joao.freshgiphy.repositories.GiphyRepository
 import com.joao.freshgiphy.repositories.IGiphyRepository
+import com.joao.freshgiphy.utils.Constants
 import com.joao.freshgiphy.viewmodel.FavouritesViewModelFactory
 import com.joao.freshgiphy.viewmodel.TrendingViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -18,6 +19,12 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
+/*
+ * Because of the simplicity of this project I have decided to make a simple manual dependency injection
+ * instead of using something too robust like Dagger 2.
+ * This class is responsible for lazily instantiating all the common classes used in the project.
+ * Reference: https://developer.android.com/training/dependency-injection/manual
+ */
 class AppContainer(private val context: Context) {
 
     //ViewModels
@@ -36,10 +43,7 @@ class AppContainer(private val context: Context) {
 
     //Local
     private val localDb: GifDatabase by lazy {
-        Room.databaseBuilder(
-            context,
-            GifDatabase::class.java, "gif-database"
-        ).build()
+        Room.databaseBuilder(context, GifDatabase::class.java, Constants.DATABASE_NAME).build()
     }
 
     //Service

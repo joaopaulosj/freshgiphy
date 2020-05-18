@@ -3,6 +3,7 @@ package com.joao.freshgiphy.ui.fragments
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.joao.freshgiphy.R
@@ -11,7 +12,7 @@ import com.joao.freshgiphy.models.ListStatus
 import com.joao.freshgiphy.models.Status
 import com.joao.freshgiphy.ui.adapters.GifClickListener
 import com.joao.freshgiphy.utils.Constants
-import com.joao.freshgiphy.utils.extensions.removeDialog
+import com.joao.freshgiphy.utils.extensions.doNothing
 import com.joao.freshgiphy.viewmodel.BaseViewModel
 
 abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
@@ -50,7 +51,12 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment(), GifClickListener {
 
     override fun onGifClick(gif: Gif) {
         if (gif.isFavourite) {
-            context?.removeDialog { viewModel.onGifClick(gif) }
+            AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.dialog_remove_title))
+                .setMessage(getString(R.string.dialog_remove_message))
+                .setPositiveButton(getString(R.string.remove)) { _, _ -> viewModel.onGifClick(gif) }
+                .setNegativeButton(getString(R.string.cancel)) { _, _ -> doNothing() }
+                .show()
         } else {
             viewModel.onGifClick(gif)
         }
